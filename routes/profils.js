@@ -5,6 +5,9 @@ require("../models/connection");
 const User = require("../models/users");
 const { authenticateToken } = require("../modules/jwt");
 
+
+//_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
+
 router.get("/profil", (req, res) => {
   for (let i = 0; i < User.length; i++) {
     User.find({})
@@ -24,6 +27,8 @@ router.get("/profil", (req, res) => {
       });
   }
 });
+
+//_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 
 router.put("/swipe", authenticateToken, (req, res) => {
   if (req.body.action === "like") {
