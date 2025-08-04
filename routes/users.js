@@ -85,7 +85,11 @@ router.post("/signup", function (req, res, next) {
       newUser.save().then((userSaved) => {
         console.log(userSaved);
         const token = generateAccessToken(userSaved._id);
-        res.json({ result: true, message: "New user has been saved" });
+        res.json({
+          result: true,
+          message: "New user has been saved",
+          token: token,
+        });
       });
     }
   });
