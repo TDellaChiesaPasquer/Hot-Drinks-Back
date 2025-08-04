@@ -108,6 +108,7 @@ router.post("/signup", function (req, res, next) {
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
 router.put("/userInfos", authenticateToken, function (req, res, next) {
+    console.log(req.body.birthdate, typeof req.body.birthdate)
   console.log(new Date(req.body.birthdate));
   User.updateOne(
     { _id: req.userId },
