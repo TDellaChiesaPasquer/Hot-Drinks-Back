@@ -4,8 +4,8 @@ var router = express.Router();
 require("../models/connection");
 const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
+const { generateAccessToken } = require("../modules/jwt");
 
-const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
 /* GET users listing. */
@@ -72,22 +72,27 @@ router.post("/signup", function (req, res, next) {
 
   User.findOne({ email: req.body.email }).then((data) => {
     console.log(data);
+    const hash = bcrypt.hashSync(req.body.password, 10);
     if (data) {
-      res.json({ result: false, error: "User already exists" });
+      if (bcrypt.compareSync(req.body.password, data.password)) {
+        const token = generateAccessToken(data._id);
+        res.json({ result: true, message: "User is connected", token: token });
+      } else {
+        res.json({ result: false, error: "Wrong password or email" });
+      }
     } else {
-      const token = uid2(32);
-      const hash = bcrypt.hashSync(req.body.password, 10);
-
       const newUser = new User({
         email: req.body.email,
         password: hash,
-        token: token,
       });
 
-      newUser.save().then(() => {
-        User.find().then((data) => {
-          console.log(data);
-          res.json({ result: true, token: token });
+      newUser.save().then((userSaved) => {
+        console.log(userSaved);
+        const token = generateAccessToken(userSaved._id);
+        res.json({
+          result: true,
+          message: "New user has been saved",
+          token: token,
         });
       });
     }
