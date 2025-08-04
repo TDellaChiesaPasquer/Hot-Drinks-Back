@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 
 function generateAccessToken(userId) {
 	//Generates a token for 24h, stores the username of the user
-	return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "24h" });
+	return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "1000000h" });
 }
 
 function authenticateToken(req, res, next) {
