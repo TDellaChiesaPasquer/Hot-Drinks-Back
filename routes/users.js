@@ -42,13 +42,6 @@ router.post(
           error: "This google account is already used",
         });
       }
-      possibleUser = await User.findOne({ email: req.body.email }); //Verifies if an account with the same email  exists
-      if (possibleUser) {
-        return res.json({
-          result: false,
-          error: "The user already exists",
-        });
-      }
       const newUser = new User({
         email: payload.email,
         creationDate: new Date(),
