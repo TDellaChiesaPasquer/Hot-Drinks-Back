@@ -72,11 +72,15 @@ router.post("/signup", function (req, res, next) {
 
   User.findOne({ email: req.body.email }).then((data) => {
     console.log(data);
+    const hash = bcrypt.hashSync(req.body.password, 10);
     if (data) {
-      res.json({ result: false, error: "User already exists" });
+      if (bcrypt.compareSync(req.body.password, data.password)) {
+        const token = generateAccessToken(data._id);
+        res.json({ result: true, message: "User is connected", token: token });
+      } else {
+        res.json({ result: false, error: "Wrong password or email" });
+      }
     } else {
-      const hash = bcrypt.hashSync(req.body.password, 10);
-
       const newUser = new User({
         email: req.body.email,
         password: hash,
