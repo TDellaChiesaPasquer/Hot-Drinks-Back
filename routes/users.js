@@ -4,7 +4,7 @@ var router = express.Router();
 require("../models/connection");
 const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
-const { generateAccessToken } = require("../modules/jwt");
+const { generateAccessToken, authenticateToken } = require("../modules/jwt");
 
 const bcrypt = require("bcrypt");
 
@@ -64,39 +64,77 @@ router.get("/", function (req, res, next) {
 //   }
 // );
 
+//_________________________________________________________SIGN UP_______________________________________________________________
 router.post("/signup", function (req, res, next) {
   if (!checkBody(req.body, ["email", "password"])) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
 
-  User.findOne({ email: req.body.email }).then((data) => {
-    console.log(data);
-    const hash = bcrypt.hashSync(req.body.password, 10);
-    if (data) {
-      if (bcrypt.compareSync(req.body.password, data.password)) {
-        const token = generateAccessToken(data._id);
-        res.json({ result: true, message: "User is connected", token: token });
+  User.findOne({ email: req.body.email })
+    .select("password")
+    .then((data) => {
+      console.log(data);
+      const hash = bcrypt.hashSync(req.body.password, 10);
+      if (data) {
+        if (bcrypt.compareSync(req.body.password, data.password)) {
+          const token = generateAccessToken(data._id);
+          res.json({
+            result: true,
+            message: "User is connected",
+            token: token,
+          });
+        } else {
+          res.json({ result: false, error: "Wrong password or email" });
+        }
       } else {
-        res.json({ result: false, error: "Wrong password or email" });
-      }
-    } else {
-      const newUser = new User({
-        email: req.body.email,
-        password: hash,
-      });
-
-      newUser.save().then((userSaved) => {
-        console.log(userSaved);
-        const token = generateAccessToken(userSaved._id);
-        res.json({
-          result: true,
-          message: "New user has been saved",
-          token: token,
+        const newUser = new User({
+          email: req.body.email,
+          password: hash,
         });
+
+        newUser.save().then((userSaved) => {
+          console.log(userSaved);
+          const token = generateAccessToken(userSaved._id);
+          res.json({
+            result: true,
+            message: "New user has been saved",
+            token: token,
+          });
+        });
+      }
+    });
+});
+
+//_________________________________________________________ADD USER INFOS_______________________________________________________________
+router.put("/userInfos", authenticateToken, function (req, res, next) {
+  console.log(new Date(req.body.birthdate));
+  User.updateOne(
+    { _id: req.userId },
+    {
+      birthdate: new Date(req.body.birthdate),
+      username: req.body.username,
+      gender: req.body.gender,
+      orientation: req.body.orientation,
+      relashionship: req.body.relashionship,
+    }
+  ).then(() => {
+    User.findById(req.userId).then((data) => {
+      //console.log("user infos updated :", data);
+      res.json({ result: true, message: "User infos updated" });
+    });
+  });
+});
+
+//_________________________________________________________ADD PICTURES_______________________________________________________________
+router.put("/addPhoto", authenticateToken, function (req, res, next) {
+  User.findByIdAndUpdate(req.userId, { photoList: [req.body.photoList] }).then(
+    () => {
+      User.findById(req.userId).then((data) => {
+        res.json({ result: true, message: "user pictures added succesfully!" });
       });
     }
-  });
+  );
 });
 
 module.exports = router;
