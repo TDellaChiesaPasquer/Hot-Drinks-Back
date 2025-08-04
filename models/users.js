@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const tasteSchema= mongoose.Schema({
-         category: String,
+      category: String,
       value: String,
       star: Boolean,
 })
@@ -11,12 +11,13 @@ const userSchema = mongoose.Schema({
   birthdate: Date,
   gender: String,
   accountType: String,
+  password: { type: String, select: false },
   email: String,
   phoneNumber: String,
   photoList: [String],
   likesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   dislikesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
-  superLikesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  superlikesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   tastesList: [tasteSchema],
   orientation: String,
   relashionship: String,
