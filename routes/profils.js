@@ -8,7 +8,7 @@ const { authenticateToken } = require("../modules/jwt");
 
 //_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
 
-router.get("/profil", async (req, res) => {
+router.get("/profil", authenticateToken, async (req, res) => {
     try {
         const data = await User.find({})
             .select("username birthdate gender orientation relashionship photoList distance");

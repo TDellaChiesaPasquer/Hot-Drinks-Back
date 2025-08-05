@@ -8,11 +8,6 @@ const { body, validationResult } = require("express-validator");
 
 const bcrypt = require("bcrypt");
 
-/* GET users listing. */
-router.get("/", function (req, res, next) {
-  res.send("respond with a resource");
-});
-
 //_________________________________________________________SIGN UP_______________________________________________________________
 router.post(
   "/signup",
@@ -59,6 +54,17 @@ router.post(
       });
   }
 );
+
+
+router.get('/infos', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        res.json({result: true, user});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({result: false, error: 'Server error'});
+    }
+});
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
 router.put("/userInfos", authenticateToken, function (req, res, next) {
