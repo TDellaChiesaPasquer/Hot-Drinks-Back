@@ -46,19 +46,18 @@ router.post(
           password: hash,
         });
 
-        const savedUser = await newUser.save();
-        const token = generateAccessToken(savedUser._id);
-        res.json({
-          result: true,
-          message: "New user has been saved",
-          token: token,
-        });
-      }
-    } catch (error) {
-      res.status(500).json({ result: false, error: "Server error" });
-    }
-  }
-);
+			const savedUser = await newUser.save();
+			const token = generateAccessToken(savedUser._id);
+			res.json({
+				result: true,
+				message: "New user has been saved",
+				token: token,
+			});
+		}
+	} catch (error) {
+		res.status(500).json({ result: false, error: "Server error" });
+	}
+});
 
 
 router.get('/infos', authenticateToken, async (req, res) => {
@@ -72,25 +71,25 @@ router.get('/infos', authenticateToken, async (req, res) => {
 });
 
 const genderCheck = (value) => {
-  if (value === 'Homme' || value === 'Femme' || value === 'Non binaire') {
-    return true;
-  }
-  return false;
-}
+	if (value === "Homme" || value === "Femme" || value === "Non binaire") {
+		return true;
+	}
+	return false;
+};
 
 const orientationCheck = (value) => {
-  if (value === 'Homme' || value === 'Femme' || value === 'Tout') {
-    return true;
-  }
-  return false;
-}
+	if (value === "Homme" || value === "Femme" || value === "Tout") {
+		return true;
+	}
+	return false;
+};
 
 const relationshipCheck = (value) => {
-  if (['Chocolat chaud', 'Allongé', 'Thé', "Expresso", 'Ristretto', 'Matcha'].some(x => x === value)) {
-    return true;
-  }
-  return false;
-}
+	if (["Chocolat chaud", "Allongé", "Thé", "Expresso", "Ristretto", "Matcha"].some((x) => x === value)) {
+		return true;
+	}
+	return false;
+};
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
 router.put("/userInfos", authenticateToken,
@@ -154,7 +153,7 @@ const numberSanitize = (value) => {
   return Number(value);
 }
 
-router.put('/location', authenticateToken, 
+router.put('/location', authenticateToken,
   body('latitude').custom(latitudeCheck).customSanitizer(numberSanitize),
   body('longitude').custom(longitudeCheck).customSanitizer(numberSanitize),
   async (req, res) => {
