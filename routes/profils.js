@@ -8,24 +8,14 @@ const { authenticateToken } = require("../modules/jwt");
 
 //_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
 
-router.get("/profil", (req, res) => {
-  for (let i = 0; i < User.length; i++) {
-    User.find({})
-      .select(
-        "username",
-        "birthdate",
-        "gender",
-        "orientation",
-        "relashionship",
-        "photoList",
-        "distance"
-      )
-      .then((data) => {
-        res.json({ result: true, profilList: data.slice(0, 10) });
-        // } else {
-        //     res.json({result: false, error: 'Profil non trouvé !'})
-      });
-  }
+router.get("/profil", async (req, res) => {
+    try {
+        const data = await User.find({})
+            .select("username birthdate gender orientation relashionship photoList distance");
+        res.json({result: true, profilList: data.slice(0, 10)});
+    } catch (error) {
+        res.json({result: false, error: 'Server error'});
+    }
 });
 
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
