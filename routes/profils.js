@@ -20,28 +20,29 @@ router.get("/profil", authenticateToken, async (req, res) => {
 
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 
-router.put("/swipe", authenticateToken, (req, res) => {
+router.put("/swipe", authenticateToken, async (req, res) => {
+  try{
   if (req.body.action === "like") {
-    User.findByIdAndUpdate(req.userId, {
+    const data = await User.findByIdAndUpdate(req.userId, {
       $push: { likesList: req.body.userId },
-    }).then((data) => {
+    })
       res.json({ result: true, likesList: data });
       console.log(data, "Le profil a été liké !");
-    });
   } else if (req.body.action === "superlike") {
-    User.findByIdAndUpdate(req.userId, {
+    const data = await User.findByIdAndUpdate(req.userId, {
       $push: { superlikesList: req.body.userId },
-    }).then((data) => {
-      res.json({ result: true, superlikesList: data });
+    })
+    res.json({ result: true, superlikesList: data });
       console.log(data, "Le profil a été superliké !");
-    });
-  } else {
-    User.findByIdAndUpdate(req.userId, {
+    }  else {
+    const data = await User.findByIdAndUpdate(req.userId, {
       $push: { dislikesList: req.body.userId },
-    }).then((data) => {
+    })
       res.json({ result: false, dislikesList: data });
-      console.log(data, "Le profil a été disliké !");
-    });
+      console.log(data, "Le profil a été disliké !")
+  }
+  } catch(error) {
+        res.json({result: false, error: 'Server error'});
   }
 });
 
