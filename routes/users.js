@@ -6,7 +6,11 @@ const User = require("../models/users");
 const { generateAccessToken, authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 
+const uniqid = require('uniqid');
 const bcrypt = require("bcrypt");
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
@@ -80,42 +84,86 @@ const relationshipCheck = (value) => {
 };
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
-router.put(
-	"/userInfos",
-	authenticateToken,
-	body("birthdate").isISO8601(),
-	body("username").isString().isLength({ max: 40 }).escape(),
-	body("gender").custom(genderCheck),
-	body("orientation").custom(orientationCheck),
-	body("relationship").custom(relationshipCheck),
-	async function (req, res, next) {
-		try {
-			await User.findByIdAndUpdate(req.userId, {
-				birthdate: new Date(req.body.birthdate),
-				username: req.body.username,
-				gender: req.body.gender,
-				orientation: req.body.orientation,
-				relashionship: req.body.relationship,
-			});
-			res.json({ result: true, message: "User infos updated" });
-		} catch (error) {
-			res.status(500).json({ result: false, error: "Server error" });
-		}
-	}
-);
+router.put("/userInfos", authenticateToken,
+  body('birthdate').isISO8601(),
+  body('username').isString().isLength({max: 40}).escape(),
+  body('gender').custom(genderCheck),
+  body('orientation').custom(orientationCheck),
+  body('relationship').custom(relationshipCheck),
+  async function (req, res, next) {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ result: false, error: errors.array() });
+    }
+    await User.findByIdAndUpdate(req.userId,
+      {
+        birthdate: new Date(req.body.birthdate),
+        username: req.body.username,
+        gender: req.body.gender,
+        orientation: req.body.orientation,
+        relashionship: req.body.relationship,
+      }
+    );
+    res.json({ result: true, message: "User infos updated" });
+  } catch (error) {
+    res.status(500).json({ result: false, error: "Server error" });
+  }
+});
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
-router.put("/addPhoto", authenticateToken, async function (req, res, next) {
-	try {
-		const userFoundByIdAndUpdate = await User.findByIdAndUpdate(req.userId, {
-			photoList: [req.body.photoList],
-		});
-		User.findById(req.userId).then((data) => {
-			res.json({ result: true, message: "user pictures added succesfully!" });
-		});
-	} catch (error) {
-		res.json({ result: false, error: "Server error" });
-	}
+router.post("/addPhoto", authenticateToken, async function (req, res, next) {
+  const photoPath = `./tmp/photo${uniqid()}.jpg`;
+  try {
+    console.log(req.files.photo.mimetype);
+    const resultMove = await req.files.photo.mv(photoPath);
+    if (resultMove) {
+      return res.json({result: false, error: resultMove});
+    }
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+    fs.unlinkSync(photoPath);
+    const userFoundByIdAndUpdate = await User.findByIdAndUpdate(req.userId, {
+      $push: {photoList: resultCloudinary.secure_url},
+    });
+    res.json({result: true, photoURL: resultCloudinary.secure_url});
+  } catch (error) {
+    res.json({ result: false, error: "Server error" });
+  }
+});
+
+const latitudeCheck = (value) => {
+  const latitude = Number(value);
+  return latitude >= -90 && latitude <= 90;
+}
+
+const longitudeCheck = (value) => {
+  console.log(value);
+  return longitude >= -180 && longitude <= 180;
+}
+
+const numberSanitize = (value) => {
+  return Number(value);
+}
+
+router.put('/location', authenticateToken,
+  body('latitude').custom(latitudeCheck).customSanitizer(numberSanitize),
+  body('longitude').custom(longitudeCheck).customSanitizer(numberSanitize),
+  async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ result: false, error: errors.array() });
+    }
+    await User.findByIdAndUpdate(req.userId,
+      {
+        latitude: req.body.latitude,
+        longitude: req.body.longitude
+      }
+    );
+    res.json({ result: true, message: "User infos updated" });
+  } catch(error) {
+    res.status(500).json({ result: false, error: "Server error" });
+  }
 });
 
 module.exports = router;
