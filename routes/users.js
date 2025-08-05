@@ -24,7 +24,8 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ result: false, error: errors.array() });
       }
-      const data = await User.findOne({ email: req.body.email }).select(
+      const email = req.body.email.toLowerCase();
+      const data = await User.findOne({ email}).select(
         "password"
       );
       const hash = bcrypt.hashSync(req.body.password, 10);
@@ -41,7 +42,7 @@ router.post(
         }
       } else {
         const newUser = new User({
-          email: req.body.email,
+          email,
           password: hash,
         });
 
@@ -62,7 +63,7 @@ router.post(
 
 router.get('/infos', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId).populate({path: 'conversationList', populate: {path: 'user1 user2', select: 'username'}});
     res.json({result: true, user});
   } catch (error) {
     console.log(error);

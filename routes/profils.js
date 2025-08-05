@@ -3,15 +3,41 @@ var router = express.Router();
 
 require("../models/connection");
 const User = require("../models/users");
+const Conversation = require("../models/conversations");
 const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 
 //_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
 
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
+
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
-		const data = await User.find({}).select("username birthdate gender orientation relashionship photoList distance").limit(10);
-		res.json({ result: true, profilList: data });
+    const user = await User.findById(req.userId);
+		const data = await User.find({}).select("username birthdate gender orientation relationship photoList latitude longitude").limit(10);
+    const result = []; 
+    for (const element of data) {
+      const {username, birthdate, gender, orientation, relationship, photoList, latitude, longitude} = element;
+      const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
+      result.push({username, birthdate, gender, orientation, relationship, photoList, distance});
+    }
+		res.json({ result: true, profilList: result });
 	} catch (error) {
 		res.status(500).json({ result: false, error: "Server error" });
 	}
@@ -21,11 +47,32 @@ router.get("/profil", authenticateToken, async (req, res) => {
 
 router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
 	try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ result: false, error: errors.array() });
+    }
+    const otherUser = await User.findById(req.body.userId);
+    if (!otherUser) {
+      res.json({result: false, error: 'Profil non trouvé'});
+      return;
+    }
 		if (req.body.action === "like") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { likesList: req.body.userId },
 			});
-			res.json({ result: true, likesList: data });
+      let match = false;
+      if (otherUser.likesList.some(x => String(x) === String(req.userId))) {
+        match = true;
+        const newConversation = new Conversation({
+          user1: req.userId,
+          user2: req.body.userId,
+          messageList: []
+        })
+        const conv = await newConversation.save();
+        await User.findByIdAndUpdate(req.userId, {$push: {conversationList: conv._id}});
+        await User.findByIdAndUpdate(req.body.userId, {$push: {conversationList: conv._id}});
+      }
+			res.json({ result: true, likesList: data, match});
 			console.log(data, "Le profil a été liké !");
 		} else if (req.body.action === "superlike") {
 			const data = await User.findByIdAndUpdate(req.userId, {
