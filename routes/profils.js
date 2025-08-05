@@ -6,7 +6,6 @@ const User = require("../models/users");
 const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 
-
 //_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
 
 router.get("/profil", authenticateToken, async (req, res) => {
