@@ -95,6 +95,10 @@ router.put("/userInfos", authenticateToken,
   body('relationship').custom(relationshipCheck),
   async function (req, res, next) {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ result: false, error: errors.array() });
+    }
     await User.findByIdAndUpdate(req.userId,
       {
         birthdate: new Date(req.body.birthdate),
@@ -121,6 +125,41 @@ router.put("/addPhoto", authenticateToken, async function (req, res, next) {
     });
   } catch (error) {
     res.json({ result: false, error: "Server error" });
+  }
+});
+
+const latitudeCheck = (value) => {
+  const latitude = Number(value);
+  return latitude >= -90 && latitude <= 90;
+}
+
+const longitudeCheck = (value) => {
+  console.log(value);
+  return longitude >= -180 && longitude <= 180;
+}
+
+const numberSanitize = (value) => {
+  return Number(value);
+}
+
+router.put('/location', authenticateToken, 
+  body('latitude').custom(latitudeCheck).customSanitizer(numberSanitize),
+  body('longitude').custom(longitudeCheck).customSanitizer(numberSanitize),
+  async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ result: false, error: errors.array() });
+    }
+    await User.findByIdAndUpdate(req.userId,
+      {
+        latitude: req.body.latitude,
+        longitude: req.body.longitude
+      }
+    );
+    res.json({ result: true, message: "User infos updated" });
+  } catch(error) {
+    res.status(500).json({ result: false, error: "Server error" });
   }
 });
 
