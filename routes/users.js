@@ -22,7 +22,6 @@ router.post(
       const data = await User.findOne({ email: req.body.email }).select(
         "password"
       );
-      console.log(data);
       const hash = bcrypt.hashSync(req.body.password, 10);
       if (data) {
         if (bcrypt.compareSync(req.body.password, data.password)) {
@@ -42,8 +41,7 @@ router.post(
         });
 
         const savedUser = await newUser.save();
-        console.log(userSaved);
-        const token = generateAccessToken(userSaved._id);
+        const token = generateAccessToken(savedUser._id);
         res.json({
           result: true,
           message: "New user has been saved",
@@ -51,43 +49,64 @@ router.post(
         });
       }
     } catch (error) {
-      res.json({ result: false, error: "Server error" });
+      res.status(500).json({ result: false, error: "Server error" });
     }
   }
 );
 
 
 router.get('/infos', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.userId);
-        res.json({result: true, user});
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({result: false, error: 'Server error'});
-    }
+  try {
+    const user = await User.findById(req.userId);
+    res.json({result: true, user});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({result: false, error: 'Server error'});
+  }
 });
 
+const genderCheck = (value) => {
+  if (value === 'Homme' || value === 'Femme' || value === 'Non binaire') {
+    return true;
+  }
+  return false;
+}
+
+const orientationCheck = (value) => {
+  if (value === 'Homme' || value === 'Femme' || value === 'Tout') {
+    return true;
+  }
+  return false;
+}
+
+const relationshipCheck = (value) => {
+  if (['Chocolat chaud', 'Allongé', 'Thé', "Expresso", 'Ristretto', 'Matcha'].some(x => x === value)) {
+    return true;
+  }
+  return false;
+}
+
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
-router.put("/userInfos", authenticateToken, async function (req, res, next) {
+router.put("/userInfos", authenticateToken,
+  body('birthdate').isISO8601(),
+  body('username').isString().isLength({max: 40}).escape(),
+  body('gender').custom(genderCheck),
+  body('orientation').custom(orientationCheck),
+  body('relationship').custom(relationshipCheck),
+  async function (req, res, next) {
   try {
-    console.log(req.body.birthdate, typeof req.body.birthdate);
-    console.log(new Date(req.body.birthdate));
-    const upDatedUser = await User.updateOne(
-      { _id: req.userId },
+    await User.findByIdAndUpdate(req.userId,
       {
         birthdate: new Date(req.body.birthdate),
         username: req.body.username,
         gender: req.body.gender,
         orientation: req.body.orientation,
-        relashionship: req.body.relashionship,
+        relashionship: req.body.relationship,
       }
     );
-    User.findById(req.userId).then((data) => {
-      //console.log("user infos updated :", data);
-      res.json({ result: true, message: "User infos updated" });
-    });
+    res.json({ result: true, message: "User infos updated" });
   } catch (error) {
-    res.json({ result: false, error: "Server error" });
+    res.status(500).json({ result: false, error: "Server error" });
   }
 });
 
