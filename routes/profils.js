@@ -5,29 +5,16 @@ require("../models/connection");
 const User = require("../models/users");
 const { authenticateToken } = require("../modules/jwt");
 
-// const Profil = {
-// 	username: String,
-// 	birthdate: Date,
-// 	gender: String,
-// 	orientation: String,
-// 	relashionship: String,
-// };
-
 //_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
 
-router.get("/profil", (req, res) => {
-	for (let i = 0; i < User.length; i++) {
-		User.find({})
-			.select("username", "birthdate", "gender", "orientation", "relashionship", "photoList", "distance")
-			.then((data) => {
-				res.json({ result: true, profilList: data.slice(0, 10) });
-				// } else {
-				//     res.json({result: false, error: 'Profil non trouvé !'})
-			});
-      //.catch((error) => { // Permet d'envoyer un message lorsque la commande User.find({}) n'aboutit pas
-      // 	res.json({ result: false, error: "Erreur serveur" });
-      // });
-	}
+router.get("/profil", async (req, res) => {
+    try {
+        const data = await User.find({})
+            .select("username birthdate gender orientation relashionship photoList distance");
+        res.json({result: true, profilList: data.slice(0, 10)});
+    } catch (error) {
+        res.json({result: false, error: 'Server error'});
+    }
 });
 
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
