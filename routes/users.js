@@ -6,7 +6,11 @@ const User = require("../models/users");
 const { generateAccessToken, authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 
+const uniqid = require('uniqid');
 const bcrypt = require("bcrypt");
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
@@ -116,14 +120,20 @@ router.put("/userInfos", authenticateToken,
 });
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
-router.put("/addPhoto", authenticateToken, async function (req, res, next) {
+router.post("/addPhoto", authenticateToken, async function (req, res, next) {
+  const photoPath = `./tmp/photo${uniqid()}.jpg`;
   try {
+    console.log(req.files.photo.mimetype);
+    const resultMove = await req.files.photo.mv(photoPath);
+    if (resultMove) {
+      return res.json({result: false, error: resultMove});
+    }
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+    fs.unlinkSync(photoPath);
     const userFoundByIdAndUpdate = await User.findByIdAndUpdate(req.userId, {
-      photoList: [req.body.photoList],
+      $push: {photoList: resultCloudinary.secure_url},
     });
-    User.findById(req.userId).then((data) => {
-      res.json({ result: true, message: "user pictures added succesfully!" });
-    });
+    res.json({result: true, photoURL: resultCloudinary.secure_url});
   } catch (error) {
     res.json({ result: false, error: "Server error" });
   }

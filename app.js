@@ -11,6 +11,8 @@ var profilsRouter = require('./routes/profils')
 var app = express();
 const cors = require('cors');
 app.use(cors());
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
 
 app.use(logger('dev'));
 app.use(express.json());
