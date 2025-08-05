@@ -9,6 +9,7 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
+
 router.post(
   "/signup",
   body("email").isEmail().escape(),
