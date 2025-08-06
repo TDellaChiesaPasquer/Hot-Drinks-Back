@@ -130,24 +130,35 @@ router.put(
 );
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
-router.post("/addPhoto", authenticateToken, async function (req, res, next) {
-  const photoPath = `./tmp/photo${uniqid()}.jpg`;
-  try {
-    console.log(req.files.photo.mimetype);
-    const resultMove = await req.files.photo.mv(photoPath);
-    if (resultMove) {
-      return res.json({ result: false, error: resultMove });
+router.post(
+  "/addPhoto/:i",
+  // authenticateToken,
+  async function (req, res, next) {
+    const length = req.params.i;
+    try {
+      const paths = [];
+      for (let i = 0; i < length; i++) {
+        paths.push(`./tmp/photo${uniqid()}.jpg`);
+        await req.files["photoFromFront" + i].mv(paths[i]);
+      }
+      const photoURIList = [];
+      for (let i = 0; i < paths.length; i++) {
+        const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
+        const uri = resultCloudinary.secure_url;
+        photoURIList.push(uri);
+        await User.findByIdAndUpdate("689083d05634401ba79696fd", {
+          $push: { photoList: uri },
+        });
+        fs.unlinkSync(paths[i]);
+      }
+
+      res.json({ result: true, photoURLList: photoURIList });
+    } catch (error) {
+      console.log(error);
+      res.json({ result: false, error: "Server error" });
     }
-    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
-    fs.unlinkSync(photoPath);
-    const userFoundByIdAndUpdate = await User.findByIdAndUpdate(req.userId, {
-      $push: { photoList: resultCloudinary.secure_url },
-    });
-    res.json({ result: true, photoURL: resultCloudinary.secure_url });
-  } catch (error) {
-    res.json({ result: false, error: "Server error" });
   }
-});
+);
 
 const latitudeCheck = (value) => {
   const latitude = Number(value);
@@ -169,7 +180,6 @@ router.put(
   body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
   body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
   async (req, res) => {
-    console.log(req.body);
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
