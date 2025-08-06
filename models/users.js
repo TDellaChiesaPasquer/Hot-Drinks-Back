@@ -25,7 +25,7 @@ const userSchema = mongoose.Schema({
   distance: Number,
   disableAccount: Boolean,
   premiumAccount: Boolean,
-  latitude: Number,
+  lattitude: Number,
   longitude: Number,
   blocklist: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   conversationList: [{ type: mongoose.Schema.Types.ObjectId, ref: "conversations" },

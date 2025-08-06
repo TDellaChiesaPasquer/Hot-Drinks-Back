@@ -23,22 +23,66 @@ function deg2rad(deg) {
 	return deg * (Math.PI / 180);
 }
 
+// function logIfExists(varName, scope = globalThis) {
+// 	try {
+// 		if (varName in scope) {
+// 			const value = scope[varName];
+// 			if (value !== null && value !== undefined) {
+// 				console.log(`${varName} =`, value);
+// 			} else {
+// 				console.log(`${varName} est null ou undefined`);
+// 			}
+// 		} else {
+// 			console.log(`${varName} est non définie`);
+// 		}
+// 	} catch (err) {
+// 		console.log(`${varName} inaccessible :`, err.message);
+// 	}
+// }
+
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId);
-		const data = await User.find({}).select("username birthdate gender orientation relationship photoList latitude longitude").limit(10);
-
-		console.log("/profil : ");
-		console.log(data);
+		if (!user) {
+			res.status(403).json({ result: false, error: "User not found" });
+			return;
+		}
+		const data = await User.find({}).select("username birthdate gender orientation tastesList relationship photoList latitude longitude").limit(10);
 
 		const result = [];
 		for (const element of data) {
-			const { username, birthdate, gender, orientation, relationship, photoList, latitude, longitude } = element;
-			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({ username, birthdate, gender, orientation, relationship, photoList, distance });
+			const { username, birthdate, gender, orientation, tastesList, relationship, photoList, latitude, longitude } = element;
+
+			// logIfExists("user");
+			// logIfExists("latitude");
+			// logIfExists("longitude");
+
+			// if (typeof user !== "undefined") {
+			// 	logIfExists("user.latitude", user);
+			// 	logIfExists("user.longitude", user);
+			// }
+
+			let distance = "NaN";
+			// Problème de vairables null lors du calcul de la distance -> résultat erreur 500 -> impossible de tester
+			if (
+				typeof user !== "undefined" &&
+				user !== null &&
+				typeof user.latitude !== "undefined" &&
+				user.latitude !== null &&
+				typeof user.longitude !== "undefined" &&
+				user.longitude !== null &&
+				typeof latitude !== "undefined" &&
+				latitude !== null &&
+				typeof longitude !== "undefined" &&
+				longitude !== null
+			) {
+				distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
+			}
+			result.push({ username, birthdate, gender, orientation, tastesList, relationship, photoList, distance });
 		}
 		res.json({ result: true, profilList: result });
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ result: false, error: "Server error" });
 	}
 });
