@@ -64,3 +64,10 @@ typings/
 
 # next.js build output
 .next
+
+# Scripts Ruby
+*.rb
+
+# Fichiers temporaires
+*projet.txt
+*backend.txt

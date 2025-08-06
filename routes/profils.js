@@ -11,6 +11,8 @@ const { body, validationResult } = require("express-validator");
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const data = await User.find({}).select("username birthdate gender orientation relashionship photoList distance").limit(10);
+		console.log("/profil : ");
+		console.log(data);
 		res.json({ result: true, profilList: data });
 	} catch (error) {
 		res.status(500).json({ result: false, error: "Server error" });
@@ -20,6 +22,8 @@ router.get("/profil", authenticateToken, async (req, res) => {
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 
 router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
+	if (req.body.userId) console.log("Swipe - userId : " + req.body.userId);
+	if (req.body.action) console.log("Swipe - action : " + req.body.action);
 	try {
 		if (req.body.action === "like") {
 			const data = await User.findByIdAndUpdate(req.userId, {
