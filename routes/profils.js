@@ -102,7 +102,7 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("usernam
 			res.status(403).res.json({ result: false, error: "Profil non trouvé" });
 			return;
 		}
-		if (req.body.action === "like") {
+		if (req.body.action.toLowerCase() === "like") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { likesList: req.body.userId },
 			});
@@ -120,7 +120,7 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("usernam
 			}
 			res.json({ result: true, likesList: data, match });
 			console.log(data, "Le profil a été liké !");
-		} else if (req.body.action === "superlike") {
+		} else if (req.body.action.toLowerCase() === "superlike") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { superlikesList: req.body.userId },
 			});
