@@ -11,12 +11,12 @@ const mongoose = require("mongoose");
 router.post('/test', authenticateToken, async (req, res) => {
   const newConversation = new Conversation({
           user1: req.userId,
-          user2: new mongoose.Types.ObjectId('6890841f5634401ba7969706'),
+          user2: new mongoose.Types.ObjectId('68935956d6ad579fd8bb5f84'),
           messageList: []
         })
         const conv = await newConversation.save();
         await User.findByIdAndUpdate(req.userId, {$push: {conversationList: conv._id}});
-        await User.findByIdAndUpdate(new mongoose.Types.ObjectId('6890841f5634401ba7969706'), {$push: {conversationList: conv._id}});
+        await User.findByIdAndUpdate(new mongoose.Types.ObjectId('68935956d6ad579fd8bb5f84'), {$push: {conversationList: conv._id}});
 })
 
 router.post('/message', authenticateToken,
@@ -32,7 +32,7 @@ router.post('/message', authenticateToken,
     if (!conversation || (String(conversation.user1) !== String(req.userId) && String(conversation.user2) !== String(req.userId))) {
       return res.json({result: false, error: 'Conversation non trouvée'});
     }
-    let user = conversation.user1 === req.userId ? 1 : 2;
+    let user = String(conversation.user1) === String(req.userId) ? 1 : 2;
     await Conversation.findByIdAndUpdate(req.body.conversationId, {$push: {messageList: {creator: user, date: new Date(), content: req.body.content}}});
     res.json({result: true});
   } catch(error) {
