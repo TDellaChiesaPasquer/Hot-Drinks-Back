@@ -89,17 +89,17 @@ router.get("/profil", authenticateToken, async (req, res) => {
 
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 
-router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
-	if (req.body.userId) console.log("Swipe - userId : " + req.body.userId);
-	if (req.body.action) console.log("Swipe - action : " + req.body.action);
+router.put("/swipe", authenticateToken, body("action").isString(), body("username").isString().isLength({ max: 60 }).escape(), async (req, res) => {
+	console.log("Swipe - userId : " + req.body.userId);
+	console.log("Swipe - action : " + req.body.action);
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
-		const otherUser = await User.findById(req.body.userId);
+		const otherUser = await User.findOne({ username: req.body.username });
 		if (!otherUser) {
-			res.json({ result: false, error: "Profil non trouvé" });
+			res.status(403).res.json({ result: false, error: "Profil non trouvé" });
 			return;
 		}
 		if (req.body.action === "like") {
@@ -134,6 +134,7 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 			console.log(data, "Le profil a été disliké !");
 		}
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ result: false, error: "Server error" });
 	}
 });
