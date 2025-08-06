@@ -62,7 +62,7 @@ router.post(
 
 router.get('/infos', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).populate({path: 'conversationList', populate: {path: 'user1 user2', select: 'username'}});
+    const user = await User.findById(req.userId).populate({path: 'conversationList', populate: {path: 'user1 user2', select: 'username photoList'}});
     res.json({result: true, user});
   } catch (error) {
     console.log(error);
