@@ -14,30 +14,37 @@ const fs = require('fs');
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
-router.post("/signup", body("email").isEmail().escape(), body("password").isString().isLength({ min: 8, max: 32 }), async function (req, res, next) {
-	try {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ result: false, error: errors.array() });
-		}
-		const data = await User.findOne({ email: req.body.email }).select("password");
-		const hash = bcrypt.hashSync(req.body.password, 10);
-		if (data) {
-			if (bcrypt.compareSync(req.body.password, data.password)) {
-				const token = generateAccessToken(data._id);
-				res.json({
-					result: true,
-					message: "User is connected",
-					token: token,
-				});
-			} else {
-				res.json({ result: false, error: "Wrong password or email" });
-			}
-		} else {
-			const newUser = new User({
-				email: req.body.email,
-				password: hash,
-			});
+router.post(
+  "/signup",
+  body("email").isEmail().escape(),
+  body("password").isString().isLength({ min: 8, max: 32 }),
+  async function (req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      const email = req.body.email.toLowerCase();
+      const data = await User.findOne({ email}).select(
+        "password"
+      );
+      const hash = bcrypt.hashSync(req.body.password, 10);
+      if (data) {
+        if (bcrypt.compareSync(req.body.password, data.password)) {
+          const token = generateAccessToken(data._id);
+          res.json({
+            result: true,
+            message: "User is connected",
+            token: token,
+          });
+        } else {
+          res.json({ result: false, error: "Wrong password or email" });
+        }
+      } else {
+        const newUser = new User({
+          email,
+          password: hash,
+        });
 
 			const savedUser = await newUser.save();
 			const token = generateAccessToken(savedUser._id);
@@ -52,14 +59,15 @@ router.post("/signup", body("email").isEmail().escape(), body("password").isStri
 	}
 });
 
-router.get("/infos", authenticateToken, async (req, res) => {
-	try {
-		const user = await User.findById(req.userId);
-		res.json({ result: true, user });
-	} catch (error) {
-		console.log(error);
-		res.status(500).json({ result: false, error: "Server error" });
-	}
+
+router.get('/infos', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).populate({path: 'conversationList', populate: {path: 'user1 user2', select: 'username'}});
+    res.json({result: true, user});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({result: false, error: 'Server error'});
+  }
 });
 
 const genderCheck = (value) => {
@@ -94,7 +102,7 @@ router.put("/userInfos", authenticateToken,
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ result: false, error: errors.array() });
+      rerelationshipus(400).json({ result: false, error: errors.array() });
     }
     await User.findByIdAndUpdate(req.userId,
       {
@@ -102,7 +110,7 @@ router.put("/userInfos", authenticateToken,
         username: req.body.username,
         gender: req.body.gender,
         orientation: req.body.orientation,
-        relashionship: req.body.relationship,
+        relationship: req.body.relationship,
       }
     );
     res.json({ result: true, message: "User infos updated" });

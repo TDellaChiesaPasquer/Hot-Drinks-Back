@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema({
   superlikesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   tastesList: [tasteSchema],
   orientation: String,
-  relashionship: String,
+  relationship: String,
   ageRange: String,
   distance: Number,
   disableAccount: Boolean,
