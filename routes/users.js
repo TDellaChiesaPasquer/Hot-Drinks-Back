@@ -6,11 +6,10 @@ const User = require("../models/users");
 const { generateAccessToken, authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 
-const uniqid = require('uniqid');
+const uniqid = require("uniqid");
 const bcrypt = require("bcrypt");
-const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
-
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
@@ -25,9 +24,7 @@ router.post(
         return res.status(400).json({ result: false, error: errors.array() });
       }
       const email = req.body.email.toLowerCase();
-      const data = await User.findOne({ email}).select(
-        "password"
-      );
+      const data = await User.findOne({ email }).select("password");
       const hash = bcrypt.hashSync(req.body.password, 10);
       if (data) {
         if (bcrypt.compareSync(req.body.password, data.password)) {
@@ -46,78 +43,91 @@ router.post(
           password: hash,
         });
 
-			const savedUser = await newUser.save();
-			const token = generateAccessToken(savedUser._id);
-			res.json({
-				result: true,
-				message: "New user has been saved",
-				token: token,
-			});
-		}
-	} catch (error) {
-		res.status(500).json({ result: false, error: "Server error" });
-	}
-});
+        const savedUser = await newUser.save();
+        const token = generateAccessToken(savedUser._id);
+        res.json({
+          result: true,
+          message: "New user has been saved",
+          token: token,
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
+);
 
-
-router.get('/infos', authenticateToken, async (req, res) => {
+router.get("/infos", authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).populate({path: 'conversationList', populate: {path: 'user1 user2', select: 'username photoList'}});
-    res.json({result: true, user});
+    const user = await User.findById(req.userId).populate({
+      path: "conversationList",
+      populate: { path: "user1 user2", select: "username photoList" },
+    });
+    res.json({ result: true, user });
   } catch (error) {
     console.log(error);
-    res.status(500).json({result: false, error: 'Server error'});
+    res.status(500).json({ result: false, error: "Server error" });
   }
 });
 
 const genderCheck = (value) => {
-	if (value === "Homme" || value === "Femme" || value === "Non binaire") {
-		return true;
-	}
-	return false;
+  if (value === "Homme" || value === "Femme" || value === "Non binaire") {
+    return true;
+  }
+  return false;
 };
 
 const orientationCheck = (value) => {
-	if (value === "Homme" || value === "Femme" || value === "Tout") {
-		return true;
-	}
-	return false;
+  if (value === "Homme" || value === "Femme" || value === "Tout") {
+    return true;
+  }
+  return false;
 };
 
 const relationshipCheck = (value) => {
-	if (["Chocolat chaud", "Allongé", "Thé", "Expresso", "Ristretto", "Matcha"].some((x) => x === value)) {
-		return true;
-	}
-	return false;
+  if (
+    [
+      "Chocolat chaud",
+      "Allongé",
+      "Thé",
+      "Expresso",
+      "Ristretto",
+      "Matcha",
+    ].some((x) => x === value)
+  ) {
+    return true;
+  }
+  return false;
 };
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
-router.put("/userInfos", authenticateToken,
-  body('birthdate').isISO8601(),
-  body('username').isString().isLength({max: 40}).escape(),
-  body('gender').custom(genderCheck),
-  body('orientation').custom(orientationCheck),
-  body('relationship').custom(relationshipCheck),
+router.put(
+  "/userInfos",
+  authenticateToken,
+  body("birthdate").isISO8601(),
+  body("username").isString().isLength({ max: 40 }).escape(),
+  body("gender").custom(genderCheck),
+  body("orientation").custom(orientationCheck),
+  body("relationship").custom(relationshipCheck),
   async function (req, res, next) {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ result: false, error: errors.array() });
-    }
-    await User.findByIdAndUpdate(req.userId,
-      {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      await User.findByIdAndUpdate(req.userId, {
         birthdate: new Date(req.body.birthdate),
         username: req.body.username,
         gender: req.body.gender,
         orientation: req.body.orientation,
         relashionship: req.body.relationship,
-      }
-    );
-    res.json({ result: true, message: "User infos updated" });
-  } catch (error) {
-    res.status(500).json({ result: false, error: "Server error" });
+      });
+      res.json({ result: true, message: "User infos updated" });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
   }
-});
+);
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
 router.post("/addPhoto", authenticateToken, async function (req, res, next) {
@@ -126,14 +136,14 @@ router.post("/addPhoto", authenticateToken, async function (req, res, next) {
     console.log(req.files.photo.mimetype);
     const resultMove = await req.files.photo.mv(photoPath);
     if (resultMove) {
-      return res.json({result: false, error: resultMove});
+      return res.json({ result: false, error: resultMove });
     }
     const resultCloudinary = await cloudinary.uploader.upload(photoPath);
     fs.unlinkSync(photoPath);
     const userFoundByIdAndUpdate = await User.findByIdAndUpdate(req.userId, {
-      $push: {photoList: resultCloudinary.secure_url},
+      $push: { photoList: resultCloudinary.secure_url },
     });
-    res.json({result: true, photoURL: resultCloudinary.secure_url});
+    res.json({ result: true, photoURL: resultCloudinary.secure_url });
   } catch (error) {
     res.json({ result: false, error: "Server error" });
   }
@@ -142,36 +152,38 @@ router.post("/addPhoto", authenticateToken, async function (req, res, next) {
 const latitudeCheck = (value) => {
   const latitude = Number(value);
   return latitude >= -90 && latitude <= 90;
-}
+};
 
 const longitudeCheck = (value) => {
-  console.log(value);
+  const longitude = Number(value);
   return longitude >= -180 && longitude <= 180;
-}
+};
 
 const numberSanitize = (value) => {
   return Number(value);
-}
+};
 
-router.put('/location', authenticateToken,
-  body('latitude').custom(latitudeCheck).customSanitizer(numberSanitize),
-  body('longitude').custom(longitudeCheck).customSanitizer(numberSanitize),
+router.put(
+  "/location",
+  authenticateToken,
+  body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
+  body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
   async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ result: false, error: errors.array() });
-    }
-    await User.findByIdAndUpdate(req.userId,
-      {
-        latitude: req.body.latitude,
-        longitude: req.body.longitude
+    console.log(req.body);
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
       }
-    );
-    res.json({ result: true, message: "User infos updated" });
-  } catch(error) {
-    res.status(500).json({ result: false, error: "Server error" });
+      await User.findByIdAndUpdate(req.userId, {
+        latitude: req.body.latitude,
+        longitude: req.body.longitude,
+      });
+      res.json({ result: true, message: "User infos updated" });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
   }
-});
+);
 
 module.exports = router;
