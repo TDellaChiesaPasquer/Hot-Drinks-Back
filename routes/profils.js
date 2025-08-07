@@ -23,42 +23,56 @@ function deg2rad(deg) {
 	return deg * (Math.PI / 180);
 }
 
+// function logIfExists(varName, scope = globalThis) {
+// 	try {
+// 		if (varName in scope) {
+// 			const value = scope[varName];
+// 			if (value !== null && value !== undefined) {
+// 				console.log(`${varName} =`, value);
+// 			} else {
+// 				console.log(`${varName} est null ou undefined`);
+// 			}
+// 		} else {
+// 			console.log(`${varName} est non définie`);
+// 		}
+// 	} catch (err) {
+// 		console.log(`${varName} inaccessible :`, err.message);
+// 	}
+// }
+
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId);
 		const data = await User.find({}).select("username birthdate gender orientation relationship photoList latitude longitude").limit(10);
-
-		console.log("/profil : ");
-		console.log(data);
-
 		const result = [];
 		for (const element of data) {
-			const {_id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude } = element;
+			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude } = element;
 			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
 			result.push({_id, username, birthdate, gender, orientation, relationship, photoList, distance });
 		}
 		res.json({ result: true, profilList: result });
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ result: false, error: "Server error" });
 	}
 });
 
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 
-router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
-	if (req.body.userId) console.log("Swipe - userId : " + req.body.userId);
-	if (req.body.action) console.log("Swipe - action : " + req.body.action);
+router.put("/swipe", authenticateToken, body("action").isString(), body("username").isString().isLength({ max: 60 }).escape(), async (req, res) => {
+	console.log("Swipe - userId : " + req.body.userId);
+	console.log("Swipe - action : " + req.body.action);
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
-		const otherUser = await User.findById(req.body.userId);
+		const otherUser = await User.findOne({ username: req.body.username });
 		if (!otherUser) {
-			res.json({ result: false, error: "Profil non trouvé" });
+			res.status(403).res.json({ result: false, error: "Profil non trouvé" });
 			return;
 		}
-		if (req.body.action === "like") {
+		if (req.body.action.toLowerCase() === "like") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { likesList: req.body.userId },
 			});
@@ -76,7 +90,7 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 			}
 			res.json({ result: true, likesList: data, match });
 			console.log(data, "Le profil a été liké !");
-		} else if (req.body.action === "superlike") {
+		} else if (req.body.action.toLowerCase() === "superlike") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { superlikesList: req.body.userId },
 			});
@@ -90,6 +104,7 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 			console.log(data, "Le profil a été disliké !");
 		}
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ result: false, error: "Server error" });
 	}
 });
