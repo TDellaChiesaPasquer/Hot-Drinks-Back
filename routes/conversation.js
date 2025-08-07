@@ -76,7 +76,8 @@ router.put('/:conversationId', authenticateToken,
       return res.json({result: false, error: 'Conversation non trouvée'});
     }
     const userNumber = String(conversation.user1._id) === String(req.userId) ? 1 : 2;
-    await Conversation.findByIdAndUpdate(req.params.conversationId, {$set: {'messageList.$[otherMessage].seen': true}}, {arrayFilters: [{'otherMessage': {creator: userNumber, seen: false}}]});
+    console.log(userNumber)
+    await Conversation.findByIdAndUpdate(req.params.conversationId, {$set: {'messageList.$[otherMessage].seen': true}}, {arrayFilters: [{'otherMessage.creator': userNumber}]});
     res.json({result: true, conversation});
   } catch(error) {
     res.json({result: false, error: 'Server error'});
