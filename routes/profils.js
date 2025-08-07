@@ -26,7 +26,9 @@ function deg2rad(deg) {
 
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
+    console.log('test')
 		const user = await User.findById(req.userId).populate('proposedList');
+    console.log(user.proposedList);
     if (user.proposedList && user.proposedList.length !== 0) {
 		console.log('test')
       const result = [];
@@ -66,6 +68,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
 			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
 			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList });
 		}
+    await User.findByIdAndUpdate(req.userId, {proposedList: result});
 		res.json({ result: true, profilList: result });
 	} catch (error) {
 		console.log(error);
@@ -81,15 +84,19 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
+    console.log('test1')
     const user = await User.findById(req.userId);
-    if (!user.proposedList.some(x => String(x) = String(req.userId))) {
+    if (!user.proposedList.some(x => String(x) === String(req.body.userId))) {
       return res.json({result: false, error: 'Profil non proposé'});
     }
+    console.log('test2')
 		const otherUser = await User.findById(req.body.userId);
 		if (!otherUser) {
 			res.status(403).res.json({ result: false, error: "Profil non trouvé" });
 			return;
 		}
+    console.log('test3')
+    console.log('test', req.body.action.toLowerCase())
 		if (req.body.action.toLowerCase() === "like") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { likesList: req.body.userId }, $pull: {proposedList: new mongoose.Types.ObjectId(req.body.userId)}  
