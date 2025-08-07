@@ -60,16 +60,19 @@ router.post(
 );
 
 router.get("/infos", authenticateToken, async (req, res) => {
-	try {
-		const user = await User.findById(req.userId).populate({
-			path: "conversationList",
-			populate: { path: "user1 user2", select: "username photoList" },
-		});
-		res.json({ result: true, user });
-	} catch (error) {
-		console.log(error);
-		res.status(500).json({ result: false, error: "Server error" });
-	}
+  try {
+    const user = await User.findById(req.userId).populate({
+      path: "conversationList",
+      populate: { path: "user1 user2", select: "username photoList" },
+    });
+    if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
+      await User.findByIdAndUpdate(req.userId, {valid: true});
+    }
+    res.json({ result: true, user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ result: false, error: "Server error" });
+  }
 });
 
 const genderCheck = (value) => {
@@ -95,6 +98,7 @@ const relationshipCheck = (value) => {
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
 router.put(
+<<<<<<< HEAD
 	"/userInfos",
 	authenticateToken,
 	body("birthdate").isISO8601(),
@@ -120,6 +124,38 @@ router.put(
 			res.status(500).json({ result: false, error: "Server error" });
 		}
 	}
+=======
+  "/userInfos",
+  authenticateToken,
+  body("birthdate").isISO8601(),
+  body("username").isString().isLength({ max: 40 }).escape(),
+  body("gender").custom(genderCheck),
+  body("orientation").custom(orientationCheck),
+  body("relationship").custom(relationshipCheck),
+  async function (req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      const currentDate = new Date();
+      const date = new Date(req.body.birthdate);
+      if (currentDate.valueOf() - date.valueOf() < 18 * 365 * 60 * 60 * 1000 * 24 || currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24) {
+        return res.json({result: false, error: 'Invalid date'});
+      }
+      await User.findByIdAndUpdate(req.userId, {
+        birthdate: new Date(req.body.birthdate),
+        username: req.body.username,
+        gender: req.body.gender,
+        orientation: req.body.orientation,
+        relashionship: req.body.relationship,
+      });
+      res.json({ result: true, message: "User infos updated" });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
+>>>>>>> 154c4067ce8b4b368e820aaf39f9af1cd5b27f2d
 );
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
