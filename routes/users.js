@@ -37,7 +37,7 @@ router.post(
             token: token,
           });
         } else {
-          res.json({ result: false, error: "Wrong password or email" });
+          res.json({ result: false, error: "L'addresse email est déjà utilisée" });
         }
       } else {
         const newUser = new User({
@@ -114,7 +114,7 @@ router.put(
       const currentDate = new Date();
       const date = new Date(req.body.birthdate);
       if (currentDate.valueOf() - date.valueOf() < 18 * 365 * 60 * 60 * 1000 * 24 || currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24) {
-        return res.json({result: false, error: 'Invalid date'});
+        return res.json({result: false, error: 'Date invalide'});
       }
       await User.findByIdAndUpdate(req.userId, {
         birthdate: new Date(req.body.birthdate),
