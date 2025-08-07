@@ -7,17 +7,16 @@ const Conversation = require("../models/conversations");
 const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult, param } = require("express-validator");
 const mongoose = require("mongoose");
+const Pusher = require("pusher");
 
-router.post('/test', authenticateToken, async (req, res) => {
-  const newConversation = new Conversation({
-          user1: req.userId,
-          user2: new mongoose.Types.ObjectId('68935956d6ad579fd8bb5f84'),
-          messageList: []
-        })
-        const conv = await newConversation.save();
-        await User.findByIdAndUpdate(req.userId, {$push: {conversationList: conv._id}});
-        await User.findByIdAndUpdate(new mongoose.Types.ObjectId('68935956d6ad579fd8bb5f84'), {$push: {conversationList: conv._id}});
-})
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APPID,
+    key: process.env.PUSHER_KEY,
+    secret: process.env.PUSHER_SECRET,
+    cluster: process.env.PUSHER_CLUSTER,
+    useTLS: true
+});
+
 
 router.post('/message', authenticateToken,
   body('content').isString().isLength({min: 1, max: 200}).escape(),
@@ -34,8 +33,13 @@ router.post('/message', authenticateToken,
     }
     let user = String(conversation.user1) === String(req.userId) ? 1 : 2;
     await Conversation.findByIdAndUpdate(req.body.conversationId, {$push: {messageList: {creator: user, date: new Date(), content: req.body.content}}});
+    pusher.trigger(String(req.userId), 'newMessage', {
+        conversationId: String(conversation._id)
+    });
+    console.log('test', String(req.userId))
     res.json({result: true});
   } catch(error) {
+    console.log(error)
     res.json({result: false, error: 'Server error'});
   }
 });
