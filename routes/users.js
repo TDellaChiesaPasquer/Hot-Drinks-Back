@@ -13,44 +13,51 @@ const fs = require("fs");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
-router.post("/signup", body("email").isEmail().escape(), body("password").isString().isLength({ min: 8, max: 32 }), async function (req, res, next) {
-	try {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ result: false, error: errors.array() });
-		}
-		const email = req.body.email.toLowerCase();
-		const data = await User.findOne({ email }).select("password");
-		const hash = bcrypt.hashSync(req.body.password, 10);
-		if (data) {
-			if (bcrypt.compareSync(req.body.password, data.password)) {
-				const token = generateAccessToken(data._id);
-				res.json({
-					result: true,
-					message: "User is connected",
-					token: token,
-				});
-			} else {
-				res.json({ result: false, error: "Wrong password or email" });
-			}
-		} else {
-			const newUser = new User({
-				email,
-				password: hash,
-			});
+router.post(
+  "/signup",
+  body("email").isEmail().escape(),
+  body("password").isString().isLength({ min: 8, max: 32 }),
+  async function (req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      const email = req.body.email.toLowerCase();
+      const data = await User.findOne({ email }).select("password tokenNumber");
+      const hash = bcrypt.hashSync(req.body.password, 10);
+      if (data) {
+        if (bcrypt.compareSync(req.body.password, data.password)) {
+          const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
+          console.log(tokenNumber, data.tokenNumber)
+          const token = await generateAccessToken(data._id, tokenNumber);
+          res.json({
+            result: true,
+            message: "User is connected",
+            token: token,
+          });
+        } else {
+          res.json({ result: false, error: "Wrong password or email" });
+        }
+      } else {
+        const newUser = new User({
+          email,
+          password: hash,
+        });
 
-			const savedUser = await newUser.save();
-			const token = generateAccessToken(savedUser._id);
-			res.json({
-				result: true,
-				message: "New user has been saved",
-				token: token,
-			});
-		}
-	} catch (error) {
-		res.status(500).json({ result: false, error: "Server error" });
-	}
-});
+        const savedUser = await newUser.save();
+        const token = await generateAccessToken(savedUser._id, 1);
+        res.json({
+          result: true,
+          message: "New user has been saved",
+          token: token,
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
+);
 
 router.get("/infos", authenticateToken, async (req, res) => {
 	try {
@@ -117,6 +124,7 @@ router.put(
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
 router.post(
+<<<<<<< HEAD
 	"/addPhoto/:i",
 	// authenticateToken,
 	async function (req, res, next) {
@@ -140,6 +148,33 @@ router.post(
 				});
 				fs.unlinkSync(paths[i]);
 			}
+=======
+  "/addPhoto/:i",
+  authenticateToken,
+  async function (req, res, next) {
+    let length = req.params.i;
+    const paths = [];
+    try {
+      const user = await User.findById(req.userId);
+      length = Math.min(length, 9 - user.photoList.length);
+      for (let i = 0; i < length; i++) {
+        paths.push(`./tmp/photo${uniqid()}.jpg`);
+        const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
+        if (resultMove) {
+          throw new Error('Failed to move photo');
+        }
+      }
+      const photoURIList = [];
+      for (let i = 0; i < paths.length; i++) {
+        const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
+        const uri = resultCloudinary.secure_url;
+        photoURIList.push(uri);
+        await User.findByIdAndUpdate(req.userId, {
+          $push: { photoList: uri },
+        });
+        fs.unlinkSync(paths[i]);
+      }
+>>>>>>> fabb2af6a06148a24242a8fc276a95c3269e2ed9
 
 			res.json({ result: true, photoURLList: photoURIList });
 		} catch (error) {
