@@ -43,7 +43,7 @@ function deg2rad(deg) {
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId);
-		const data = await User.find({}).select("username birthdate gender orientation relationship photoList latitude longitude tastesList").limit(10);
+		const data = await User.find({valid: true}).select("username birthdate gender orientation relationship photoList latitude longitude tastesList").limit(10);
 		const result = [];
 		for (const element of data) {
 			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList} = element;
