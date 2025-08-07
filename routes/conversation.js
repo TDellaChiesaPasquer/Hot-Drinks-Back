@@ -32,7 +32,7 @@ router.post('/message', authenticateToken,
       return res.json({result: false, error: 'Conversation non trouvée'});
     }
     let user = String(conversation.user1) === String(req.userId) ? 1 : 2;
-    await Conversation.findByIdAndUpdate(req.body.conversationId, {$push: {messageList: {creator: user, date: new Date(), content: req.body.content}}});
+    await Conversation.findByIdAndUpdate(req.body.conversationId, {$push: {messageList: {creator: user, date: new Date(), content: req.body.content, seen: false}}});
     pusher.trigger(String(conversation.user1), 'newMessage', {
         conversationId: String(conversation._id)
     });
@@ -63,5 +63,24 @@ router.get('/:conversationId', authenticateToken,
     res.json({result: false, error: 'Server error'});
   }
 });
+
+router.put('/:conversationId', authenticateToken,
+  param('conversationId').isString().isLength({max: 60}),async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ result: false, error: errors.array() });
+    }
+    const conversation = await Conversation.findById(req.params.conversationId);
+    if (!conversation || (String(conversation.user1._id) !== String(req.userId) && String(conversation.user2._id) !== String(req.userId))) {
+      return res.json({result: false, error: 'Conversation non trouvée'});
+    }
+    const otherUserNumber = String(conversation.user1._id) === String(req.userId) ? 2 : 1;
+    await Conversation.findByIdAndUpdate(req.params.conversationId, {$set: {'messageList.$[otherMessage].seen': true}}, {arrayFilters: [{'otherMessage': {creator: otherUserNumber, seen: false}}]});
+    res.json({result: true, conversation});
+  } catch(error) {
+    res.json({result: false, error: 'Server error'});
+  }
+})
 
 module.exports = router;
