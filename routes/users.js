@@ -24,11 +24,13 @@ router.post(
         return res.status(400).json({ result: false, error: errors.array() });
       }
       const email = req.body.email.toLowerCase();
-      const data = await User.findOne({ email }).select("password");
+      const data = await User.findOne({ email }).select("password tokenNumber");
       const hash = bcrypt.hashSync(req.body.password, 10);
       if (data) {
         if (bcrypt.compareSync(req.body.password, data.password)) {
-          const token = generateAccessToken(data._id);
+          const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
+          console.log(tokenNumber, data.tokenNumber)
+          const token = await generateAccessToken(data._id, tokenNumber);
           res.json({
             result: true,
             message: "User is connected",
@@ -44,7 +46,7 @@ router.post(
         });
 
         const savedUser = await newUser.save();
-        const token = generateAccessToken(savedUser._id);
+        const token = await generateAccessToken(savedUser._id, 1);
         res.json({
           result: true,
           message: "New user has been saved",

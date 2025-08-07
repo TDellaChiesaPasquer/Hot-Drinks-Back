@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const User = require('../models/users');
 
 //The functions for JWT identification
 
-function generateAccessToken(userId) {
+async function generateAccessToken(userId, tokenNumber) {
   //Generates a token for 24h, stores the username of the user
-  return jwt.sign({ userId }, process.env.SECRET_KEY, {
+  await User.findByIdAndUpdate(userId, {tokenNumber});
+  return jwt.sign({ userId, tokenNumber }, process.env.SECRET_KEY, {
     expiresIn: "1000000h",
   });
 }
@@ -24,7 +26,15 @@ function authenticateToken(req, res, next) {
       });
     }
     req.userId = new mongoose.Types.ObjectId(decoded.userId);
-    next();
+    User.findById(req.userId).then(data => {
+      if (!data || !decoded.tokenNumber || data.tokenNumber !== decoded.tokenNumber) {
+        return res.json({
+          result: false,
+          error: "Your session is invalid. Please login again.",
+        });
+      }
+      next();
+    })
   });
 }
 
