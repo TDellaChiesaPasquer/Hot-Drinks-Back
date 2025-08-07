@@ -120,6 +120,11 @@ router.put(
       if (!errors.isEmpty()) {
         return res.status(400).json({ result: false, error: errors.array() });
       }
+      const currentDate = new Date();
+      const date = new Date(req.body.birthdate);
+      if (currentDate.valueOf() - date.valueOf() < 18 * 365 * 60 * 60 * 1000 * 24 || currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24) {
+        return res.json({result: false, error: 'Invalid date'});
+      }
       await User.findByIdAndUpdate(req.userId, {
         birthdate: new Date(req.body.birthdate),
         username: req.body.username,
