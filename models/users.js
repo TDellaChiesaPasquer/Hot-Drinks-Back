@@ -32,7 +32,8 @@ const userSchema = mongoose.Schema({
   ],
   rdvList: [{ type: mongoose.Schema.Types.ObjectId, ref: "rdv" }],
   valid: {type: Boolean, default: false},
-  tokenNumber: {type: Number, default: 0}
+  tokenNumber: {type: Number, default: 0},
+  proposedList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
 });
 
 const User = mongoose.model("users", userSchema);
