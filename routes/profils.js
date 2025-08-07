@@ -28,6 +28,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId).populate('proposedList');
     if (user.proposedList && user.proposedList.length !== 0) {
+		console.log('test')
       const result = [];
       for (const element of user.proposedList) {
         const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
@@ -52,6 +53,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
         }
       }
     ]);
+	console.log(data)
 		const result = [];
 		for (const element of data) {
 			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
