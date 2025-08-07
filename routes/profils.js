@@ -19,27 +19,6 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
 	return d;
 }
 
-function deg2rad(deg) {
-	return deg * (Math.PI / 180);
-}
-
-// function logIfExists(varName, scope = globalThis) {
-// 	try {
-// 		if (varName in scope) {
-// 			const value = scope[varName];
-// 			if (value !== null && value !== undefined) {
-// 				console.log(`${varName} =`, value);
-// 			} else {
-// 				console.log(`${varName} est null ou undefined`);
-// 			}
-// 		} else {
-// 			console.log(`${varName} est non définie`);
-// 		}
-// 	} catch (err) {
-// 		console.log(`${varName} inaccessible :`, err.message);
-// 	}
-// }
-
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId);
