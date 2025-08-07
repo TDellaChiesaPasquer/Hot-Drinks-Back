@@ -135,11 +135,14 @@ router.post(
   // authenticateToken,
   async function (req, res, next) {
     const length = req.params.i;
+    const paths = [];
     try {
-      const paths = [];
       for (let i = 0; i < length; i++) {
         paths.push(`./tmp/photo${uniqid()}.jpg`);
-        await req.files["photoFromFront" + i].mv(paths[i]);
+        const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
+        if (resultMove) {
+          throw new Error('Failed to move photo');
+        }
       }
       const photoURIList = [];
       for (let i = 0; i < paths.length; i++) {
@@ -155,6 +158,9 @@ router.post(
       res.json({ result: true, photoURLList: photoURIList });
     } catch (error) {
       console.log(error);
+      for (let i = 0; i < paths.length; i++) {
+        fs.unlinkSync(paths[i]);
+      }
       res.json({ result: false, error: "Server error" });
     }
   }

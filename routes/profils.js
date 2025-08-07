@@ -33,9 +33,9 @@ router.get("/profil", authenticateToken, async (req, res) => {
 
 		const result = [];
 		for (const element of data) {
-			const { username, birthdate, gender, orientation, relationship, photoList, latitude, longitude } = element;
+			const {_id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude } = element;
 			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({ username, birthdate, gender, orientation, relationship, photoList, distance });
+			result.push({_id, username, birthdate, gender, orientation, relationship, photoList, distance });
 		}
 		res.json({ result: true, profilList: result });
 	} catch (error) {
