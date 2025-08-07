@@ -134,11 +134,13 @@ router.put(
 //_________________________________________________________ADD PICTURES_______________________________________________________________
 router.post(
   "/addPhoto/:i",
-  // authenticateToken,
+  authenticateToken,
   async function (req, res, next) {
-    const length = req.params.i;
+    let length = req.params.i;
     const paths = [];
     try {
+      const user = await User.findById(req.userId);
+      length = Math.min(length, 9 - user.photoList.length);
       for (let i = 0; i < length; i++) {
         paths.push(`./tmp/photo${uniqid()}.jpg`);
         const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
@@ -151,7 +153,7 @@ router.post(
         const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
         const uri = resultCloudinary.secure_url;
         photoURIList.push(uri);
-        await User.findByIdAndUpdate("689083d05634401ba79696fd", {
+        await User.findByIdAndUpdate(req.userId, {
           $push: { photoList: uri },
         });
         fs.unlinkSync(paths[i]);
