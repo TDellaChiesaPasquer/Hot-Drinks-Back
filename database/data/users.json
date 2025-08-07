@@ -1,617 +1,967 @@
 [
   {
-    "username": "Nicole",
-    "birthdate": "2002-06-27",
-    "gender": "Tous",
-    "orientation": "Tous",
-    "account_type": "SMS",
-    "email": "9wln@oudr.82lj",
-    "phone_number": "+33626222005",
-    "photo_list": [
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/forest/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "bricolage",
-      "dessin",
-      "pilates",
-      "jardinage",
-      "pêche"
-    ],
-    "relationship": "ristretto",
-    "age_range": "18-18",
-    "distance": 29,
-    "disable_account": false,
-    "premium_account": true,
-    "latitude": 49.333999999999996,
-    "longitude": 2.985,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Christian",
-    "birthdate": "1996-03-31",
+    "username": "Dimitri",
+    "birthdate": "2002-12-04",
     "gender": "Femme",
-    "orientation": "Tous",
-    "account_type": "Google",
-    "email": "jfxb@zvpp.kv55",
-    "phone_number": "+33688043068",
-    "photo_list": [
+    "accountType": "SMS",
+    "password": "IFsnbgh24r",
+    "email": "gzfm@uuyq.x7nm",
+    "phoneNumber": "+33632030793",
+    "photoList": [
       "https://picsum.photos/seed/abstract/800/600",
       "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/city/800/600",
       "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/beach/800/600",
       "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
       "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/forest/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "bricolage",
-      "peinture",
-      "sport",
-      "yoga",
-      "animaux"
-    ],
-    "relationship": "chocolat chaud",
-    "age_range": "18-29",
-    "distance": 25,
-    "disable_account": false,
-    "premium_account": true,
-    "latitude": 48.946,
-    "longitude": 2.614,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Angélique",
-    "birthdate": "1998-12-30",
-    "gender": "Homme",
-    "orientation": "Homme",
-    "account_type": "Google",
-    "email": "0bk0@ugzj.fvtk",
-    "phone_number": "+33635733305",
-    "photo_list": [
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/forest/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/tech/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "randonnée",
-      "vélo",
-      "danse",
-      "bricolage",
-      "sport"
-    ],
-    "relationship": "expresso",
-    "age_range": "18-29",
-    "distance": 20,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 49.608,
-    "longitude": 3.093,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Liliane",
-    "birthdate": "2001-06-03",
-    "gender": "Femme",
-    "orientation": "Tous",
-    "account_type": "Google",
-    "email": "tnq0@nuvr.dujd",
-    "phone_number": "+33686523747",
-    "photo_list": [
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/forest/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/tech/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "technologie",
-      "astronomie",
-      "natation",
-      "sport",
-      "pêche"
-    ],
-    "relationship": "expresso",
-    "age_range": "18-19",
-    "distance": 16,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 49.357,
-    "longitude": 2.7159999999999997,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Florence",
-    "birthdate": "2004-03-30",
-    "gender": "Homme",
-    "orientation": "Femme",
-    "account_type": "SMS",
-    "email": "khje@i3sz.hets",
-    "phone_number": "+33668123375",
-    "photo_list": [
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/forest/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/night/800/600",
       "https://picsum.photos/seed/city/800/600"
     ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "peinture",
-      "voyage",
-      "bénévolat",
-      "cinéma",
-      "voitures"
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "podcasts",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "théâtre",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "peinture",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "écriture",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "bricolage",
+        "star": false
+      }
     ],
-    "relationship": "thé",
-    "age_range": "18-26",
-    "distance": 20,
-    "disable_account": false,
-    "premium_account": true,
-    "latitude": 49.287,
-    "longitude": 2.4819999999999998,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Juliette",
-    "birthdate": "2006-03-31",
-    "gender": "Tous",
     "orientation": "Femme",
-    "account_type": "SMS",
-    "email": "bgzc@e8qg.p2nb",
-    "phone_number": "+33682590782",
-    "photo_list": [
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/forest/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "camping",
-      "technologie",
-      "musique",
-      "cuisine",
-      "natation"
-    ],
-    "relationship": "thé",
-    "age_range": "18-26",
-    "distance": 21,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 48.942,
-    "longitude": 2.4,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Clément",
-    "birthdate": "2004-10-06",
-    "gender": "Tous",
-    "orientation": "Femme",
-    "account_type": "Google",
-    "email": "vzxy@hwwf.fc7u",
-    "phone_number": "+33690441236",
-    "photo_list": [
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/forest/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "animaux",
-      "cinéma",
-      "vélo",
-      "astronomie",
-      "tricot"
-    ],
-    "relationship": "ristretto",
-    "age_range": "18-28",
-    "distance": 4,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 49.467,
-    "longitude": 2.936,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Sophie",
-    "birthdate": "1997-09-28",
-    "gender": "Femme",
-    "orientation": "Femme",
-    "account_type": "Google",
-    "email": "amp6@1zen.k1mz",
-    "phone_number": "+33656846278",
-    "photo_list": [
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/forest/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/city/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "animaux",
-      "dessin",
-      "musique",
-      "voile",
-      "cinéma"
-    ],
     "relationship": "allongé",
-    "age_range": "18-20",
-    "distance": 24,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 49.794,
-    "longitude": 2.905,
+    "ageRange": "18-19",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 49.041999999999994,
+    "longitude": 2.907,
     "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
+    "conversationList": [],
+    "rdvList": []
   },
   {
-    "username": "Isabelle",
-    "birthdate": "2007-07-28",
-    "gender": "Homme",
-    "orientation": "Femme",
-    "account_type": "SMS",
-    "email": "r5gx@6mlv.5dst",
-    "phone_number": "+33621645140",
-    "photo_list": [
-      "https://picsum.photos/seed/animals/800/600",
+    "username": "Nathalie",
+    "birthdate": "1999-06-30",
+    "gender": "Non-binaire",
+    "accountType": "SMS",
+    "password": "p353addhdN",
+    "email": "wx4t@d3vn.k4ur",
+    "phoneNumber": "+33630527883",
+    "photoList": [
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/nature/800/600",
       "https://picsum.photos/seed/forest/800/600",
       "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
       "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/sun/800/600",
       "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/night/800/600",
       "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/sun/800/600"
+      "https://picsum.photos/seed/animals/800/600"
     ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "camping",
-      "peinture",
-      "musique",
-      "couture",
-      "bénévolat"
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "méditation",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "écriture",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "jardinage",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "jeux_vidéo",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "podcasts",
+        "star": false
+      }
     ],
-    "relationship": "thé",
-    "age_range": "18-22",
-    "distance": 22,
-    "disable_account": false,
-    "premium_account": true,
-    "latitude": 48.817,
-    "longitude": 3.203,
+    "orientation": "Femme",
+    "relationship": "ristretto",
+    "ageRange": "18-25",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 49.141999999999996,
+    "longitude": 3.163,
     "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Aurélie",
+    "birthdate": "2000-10-02",
+    "gender": "Non-binaire",
+    "accountType": "Google",
+    "password": "n3JoNeZNyu",
+    "email": "c9gm@k2qq.ke80",
+    "phoneNumber": "+33666009437",
+    "photoList": [
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/animals/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "écriture",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "animaux",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "camping",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "cuisine",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "musique",
+        "star": true
+      }
+    ],
+    "orientation": "Homme",
+    "relationship": "matcha",
+    "ageRange": "18-21",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 49.215999999999994,
+    "longitude": 3.0749999999999997,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Claire",
+    "birthdate": "1999-10-04",
+    "gender": "Homme",
+    "accountType": "Google",
+    "password": "0yGV4JGdfD",
+    "email": "zls7@hftx.k8ln",
+    "phoneNumber": "+33691363349",
+    "photoList": [
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/beach/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "voitures",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "séries",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "sport",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "musique",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "voyage",
+        "star": true
+      }
+    ],
+    "orientation": "Tous",
+    "relationship": "thé",
+    "ageRange": "18-19",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 49.251999999999995,
+    "longitude": 3.11,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
   },
   {
     "username": "Margaux",
-    "birthdate": "1998-08-05",
-    "gender": "Homme",
-    "orientation": "Tous",
-    "account_type": "SMS",
-    "email": "jcxy@btk7.167k",
-    "phone_number": "+33635365192",
-    "photo_list": [
+    "birthdate": "1996-09-06",
+    "gender": "Femme",
+    "accountType": "SMS",
+    "password": "xbcnyCz33o",
+    "email": "0nji@0im2.n89v",
+    "phoneNumber": "+33677588082",
+    "photoList": [
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/night/800/600",
       "https://picsum.photos/seed/city/800/600",
       "https://picsum.photos/seed/sun/800/600",
       "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/beach/800/600",
       "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
       "https://picsum.photos/seed/animals/800/600",
       "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/mountain/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "sport",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "camping",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "pilates",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "voyage",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "tricot",
+        "star": false
+      }
+    ],
+    "orientation": "Homme",
+    "relationship": "allongé",
+    "ageRange": "18-25",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 49.751,
+    "longitude": 3.143,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Bernard",
+    "birthdate": "2001-04-16",
+    "gender": "Femme",
+    "accountType": "Google",
+    "password": "nVY8MGUD9k",
+    "email": "f03v@zskp.ff3q",
+    "phoneNumber": "+33631820665",
+    "photoList": [
       "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/city/800/600",
       "https://picsum.photos/seed/abstract/800/600"
     ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "tricot",
-      "bénévolat",
-      "animaux",
-      "voitures",
-      "théâtre"
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "lecture",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "sport",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "camping",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "voile",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "mode",
+        "star": false
+      }
     ],
-    "relationship": "chocolat chaud",
-    "age_range": "18-21",
-    "distance": 30,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 49.275,
-    "longitude": 2.465,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Roxane",
-    "birthdate": "1998-11-24",
-    "gender": "Homme",
-    "orientation": "Femme",
-    "account_type": "SMS",
-    "email": "zqnh@zdsl.e8ye",
-    "phone_number": "+33671165894",
-    "photo_list": [
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/forest/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/sun/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "lecture",
-      "cuisine",
-      "mode",
-      "photographie",
-      "camping"
-    ],
-    "relationship": "allongé",
-    "age_range": "18-23",
-    "distance": 25,
-    "disable_account": false,
-    "premium_account": true,
-    "latitude": 49.622,
-    "longitude": 3.2399999999999998,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Yvonne",
-    "birthdate": "1999-09-04",
-    "gender": "Homme",
-    "orientation": "Femme",
-    "account_type": "SMS",
-    "email": "bsyk@betv.ejcm",
-    "phone_number": "+33628867036",
-    "photo_list": [
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/forest/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/sun/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "voile",
-      "vélo",
-      "voitures",
-      "cuisine",
-      "lecture"
-    ],
-    "relationship": "matcha",
-    "age_range": "18-26",
-    "distance": 17,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 49.275999999999996,
-    "longitude": 3.0599999999999996,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Honorine",
-    "birthdate": "1998-01-29",
-    "gender": "Femme",
     "orientation": "Homme",
-    "account_type": "Google",
-    "email": "ghbh@brau.8xxb",
-    "phone_number": "+33605275605",
-    "photo_list": [
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/nature/800/600",
-      "https://picsum.photos/seed/forest/800/600"
-    ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "tricot",
-      "cuisine",
-      "technologie",
-      "jeux_vidéo",
-      "séries"
-    ],
-    "relationship": "thé",
-    "age_range": "18-18",
-    "distance": 4,
-    "disable_account": false,
-    "premium_account": true,
-    "latitude": 49.141999999999996,
-    "longitude": 2.695,
+    "relationship": "matcha",
+    "ageRange": "18-18",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 49.297999999999995,
+    "longitude": 2.9979999999999998,
     "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
+    "conversationList": [],
+    "rdvList": []
   },
   {
-    "username": "Gautier",
-    "birthdate": "2000-06-22",
-    "gender": "Tous",
-    "orientation": "Femme",
-    "account_type": "SMS",
-    "email": "e1gq@focp.dquu",
-    "phone_number": "+33637469945",
-    "photo_list": [
+    "username": "Axelle",
+    "birthdate": "2000-05-30",
+    "gender": "Femme",
+    "accountType": "SMS",
+    "password": "d1fuI2Z0u0",
+    "email": "09hj@kmuq.cs4e",
+    "phoneNumber": "+33697335139",
+    "photoList": [
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/night/800/600",
       "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
       "https://picsum.photos/seed/nature/800/600",
       "https://picsum.photos/seed/tech/800/600",
-      "https://picsum.photos/seed/city/800/600",
-      "https://picsum.photos/seed/sun/800/600",
-      "https://picsum.photos/seed/night/800/600",
-      "https://picsum.photos/seed/mountain/800/600",
-      "https://picsum.photos/seed/abstract/800/600",
-      "https://picsum.photos/seed/animals/800/600",
-      "https://picsum.photos/seed/beach/800/600"
+      "https://picsum.photos/seed/mountain/800/600"
     ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "jeux_vidéo",
-      "séries",
-      "tricot",
-      "jardinage",
-      "danse"
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "mode",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "dessin",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "vélo",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "pilates",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "peinture",
+        "star": false
+      }
     ],
-    "relationship": "chocolat chaud",
-    "age_range": "18-18",
-    "distance": 8,
-    "disable_account": false,
-    "premium_account": true,
-    "latitude": 48.818,
-    "longitude": 2.4669999999999996,
-    "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
-  },
-  {
-    "username": "Didier",
-    "birthdate": "1997-04-30",
-    "gender": "Tous",
     "orientation": "Tous",
-    "account_type": "SMS",
-    "email": "inos@7iel.pt8h",
-    "phone_number": "+33600779544",
-    "photo_list": [
+    "relationship": "thé",
+    "ageRange": "18-29",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 49.446999999999996,
+    "longitude": 2.891,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Guillaume",
+    "birthdate": "1998-05-24",
+    "gender": "Homme",
+    "accountType": "Google",
+    "password": "twtCcZEYEm",
+    "email": "eyrh@6ovn.ydc3",
+    "phoneNumber": "+33688191997",
+    "photoList": [
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/city/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "cinéma",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "danse",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "podcasts",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "vélo",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "astronomie",
+        "star": false
+      }
+    ],
+    "orientation": "Femme",
+    "relationship": "ristretto",
+    "ageRange": "18-25",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 49.715999999999994,
+    "longitude": 2.635,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Ingrid",
+    "birthdate": "2003-04-12",
+    "gender": "Femme",
+    "accountType": "SMS",
+    "password": "58tzQiXFe9",
+    "email": "9vv2@mwtt.yrdk",
+    "phoneNumber": "+33697621316",
+    "photoList": [
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/nature/800/600",
       "https://picsum.photos/seed/abstract/800/600",
       "https://picsum.photos/seed/forest/800/600",
-      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/night/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "pêche",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "bricolage",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "voitures",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "cuisine",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "dessin",
+        "star": false
+      }
+    ],
+    "orientation": "Femme",
+    "relationship": "expresso",
+    "ageRange": "18-18",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 49.593999999999994,
+    "longitude": 2.854,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Renaud",
+    "birthdate": "2006-08-07",
+    "gender": "Non-binaire",
+    "accountType": "SMS",
+    "password": "LjP1wEPOyv",
+    "email": "9nur@o7lv.kk5e",
+    "phoneNumber": "+33697301027",
+    "photoList": [
       "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/city/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "sport",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "bénévolat",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "voitures",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "astronomie",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "cuisine",
+        "star": true
+      }
+    ],
+    "orientation": "Tous",
+    "relationship": "allongé",
+    "ageRange": "18-21",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 49.54,
+    "longitude": 3.0189999999999997,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Agnès",
+    "birthdate": "2005-12-12",
+    "gender": "Non-binaire",
+    "accountType": "Google",
+    "password": "do96p9JxYB",
+    "email": "nxb0@etse.sui5",
+    "phoneNumber": "+33687094179",
+    "photoList": [
       "https://picsum.photos/seed/animals/800/600",
       "https://picsum.photos/seed/sun/800/600",
       "https://picsum.photos/seed/beach/800/600",
-      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
       "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/night/800/600",
       "https://picsum.photos/seed/tech/800/600"
     ],
-    "likes_list": [],
-    "dislikes_list": [],
-    "superlikes_list": [],
-    "tastes_list": [
-      "dessin",
-      "tricot",
-      "danse",
-      "yoga",
-      "couture"
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "cinéma",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "bénévolat",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "photographie",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "bricolage",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "écriture",
+        "star": true
+      }
     ],
-    "relationship": "allongé",
-    "age_range": "18-21",
-    "distance": 22,
-    "disable_account": false,
-    "premium_account": false,
-    "latitude": 49.36,
-    "longitude": 2.993,
+    "orientation": "Femme",
+    "relationship": "thé",
+    "ageRange": "18-24",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 48.928,
+    "longitude": 3.2479999999999998,
     "blocklist": [],
-    "conversation_list": [],
-    "rdv_list": []
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Renée",
+    "birthdate": "1998-07-12",
+    "gender": "Non-binaire",
+    "accountType": "Google",
+    "password": "Wjo7XbZJ7n",
+    "email": "xrli@6jaa.f3qh",
+    "phoneNumber": "+33672003346",
+    "photoList": [
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/animals/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "camping",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "animaux",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "lecture",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "tricot",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "astronomie",
+        "star": false
+      }
+    ],
+    "orientation": "Femme",
+    "relationship": "ristretto",
+    "ageRange": "18-21",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 49.361,
+    "longitude": 2.655,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Eugénie",
+    "birthdate": "2000-11-22",
+    "gender": "Femme",
+    "accountType": "SMS",
+    "password": "J1Q1wDEzD9",
+    "email": "hhds@v66d.amdt",
+    "phoneNumber": "+33685740086",
+    "photoList": [
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/sun/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "sport",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "méditation",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "randonnée",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "astronomie",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "voitures",
+        "star": false
+      }
+    ],
+    "orientation": "Tous",
+    "relationship": "allongé",
+    "ageRange": "18-20",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 48.939,
+    "longitude": 3.25,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Laetitia",
+    "birthdate": "2007-10-19",
+    "gender": "Homme",
+    "accountType": "Google",
+    "password": "F1L3glYFV6",
+    "email": "lom6@qmi9.m0ra",
+    "phoneNumber": "+33602844118",
+    "photoList": [
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/city/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/tech/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "bricolage",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "technologie",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "mode",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "cinéma",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "tricot",
+        "star": true
+      }
+    ],
+    "orientation": "Tous",
+    "relationship": "matcha",
+    "ageRange": "18-18",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 49.135999999999996,
+    "longitude": 2.8489999999999998,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "Arthur",
+    "birthdate": "1996-09-29",
+    "gender": "Femme",
+    "accountType": "Google",
+    "password": "LBGxBNA9G4",
+    "email": "y0b3@ielu.zinz",
+    "phoneNumber": "+33645256434",
+    "photoList": [
+      "https://picsum.photos/seed/animals/800/600",
+      "https://picsum.photos/seed/beach/800/600",
+      "https://picsum.photos/seed/sun/800/600",
+      "https://picsum.photos/seed/tech/800/600",
+      "https://picsum.photos/seed/abstract/800/600",
+      "https://picsum.photos/seed/nature/800/600",
+      "https://picsum.photos/seed/forest/800/600",
+      "https://picsum.photos/seed/mountain/800/600",
+      "https://picsum.photos/seed/night/800/600",
+      "https://picsum.photos/seed/city/800/600"
+    ],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "couture",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "bénévolat",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "séries",
+        "star": false
+      },
+      {
+        "category": "interest",
+        "value": "sport",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "technologie",
+        "star": true
+      }
+    ],
+    "orientation": "Homme",
+    "relationship": "chocolat chaud",
+    "ageRange": "18-27",
+    "disableAccount": false,
+    "premiumAccount": true,
+    "latitude": 49.171,
+    "longitude": 3.186,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
+  },
+  {
+    "username": "aaaa",
+    "birthdate": "2007-08-11",
+    "gender": "Homme",
+    "accountType": "SMS",
+    "email": "aaaa@aaaa.aaaa",
+    "password": "$2a$10$hDNnPueLt1v92mc9pisoNOqXZY2ijBLuDUTTEnw5v76Z18iYhO9S2",
+    "phoneNumber": "+33678887329",
+    "photoList": [],
+    "likesList": [],
+    "dislikesList": [],
+    "superlikesList": [],
+    "tastesList": [
+      {
+        "category": "interest",
+        "value": "théâtre",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "bricolage",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "danse",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "cuisine",
+        "star": true
+      },
+      {
+        "category": "interest",
+        "value": "voile",
+        "star": false
+      }
+    ],
+    "orientation": "Tous",
+    "relationship": "matcha",
+    "ageRange": "18-18",
+    "disableAccount": false,
+    "premiumAccount": false,
+    "latitude": 45,
+    "longitude": 5,
+    "blocklist": [],
+    "conversationList": [],
+    "rdvList": []
   }
 ]

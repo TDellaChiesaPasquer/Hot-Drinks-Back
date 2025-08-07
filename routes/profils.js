@@ -19,15 +19,19 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
 	return d;
 }
 
+function deg2rad(deg) {
+	return deg * (Math.PI / 180);
+}
+
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId);
-		const data = await User.find({}).select("username birthdate gender orientation relationship photoList latitude longitude tasteList").limit(10);
+		const data = await User.find({valid: true}).select("username birthdate gender orientation relationship photoList latitude longitude tastesList").limit(10);
 		const result = [];
 		for (const element of data) {
-			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tasteList} = element;
+			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
 			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({_id, username, birthdate, gender, orientation, relationship, photoList, distance, tasteList });
+			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList });
 		}
 		res.json({ result: true, profilList: result });
 	} catch (error) {
@@ -66,19 +70,19 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 				await User.findByIdAndUpdate(req.body.userId, { $push: { conversationList: conv._id } });
 			}
 			res.json({ result: true, likesList: data, match });
-			console.log(data, "Le profil a été liké !");
+			console.log("Le profil a été liké !");
 		} else if (req.body.action.toLowerCase() === "superlike") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { superlikesList: req.body.userId },
 			});
 			res.json({ result: true, superlikesList: data });
-			console.log(data, "Le profil a été superliké !");
+			console.log("Le profil a été superliké !");
 		} else {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { dislikesList: req.body.userId },
 			});
 			res.json({ result: false, dislikesList: data });
-			console.log(data, "Le profil a été disliké !");
+			console.log("Le profil a été disliké !");
 		}
 	} catch (error) {
 		console.log(error);

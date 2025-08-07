@@ -24,11 +24,13 @@ router.post(
         return res.status(400).json({ result: false, error: errors.array() });
       }
       const email = req.body.email.toLowerCase();
-      const data = await User.findOne({ email }).select("password");
+      const data = await User.findOne({ email }).select("password tokenNumber");
       const hash = bcrypt.hashSync(req.body.password, 10);
       if (data) {
         if (bcrypt.compareSync(req.body.password, data.password)) {
-          const token = generateAccessToken(data._id);
+          const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
+          console.log(tokenNumber, data.tokenNumber)
+          const token = await generateAccessToken(data._id, tokenNumber);
           res.json({
             result: true,
             message: "User is connected",
@@ -44,7 +46,7 @@ router.post(
         });
 
         const savedUser = await newUser.save();
-        const token = generateAccessToken(savedUser._id);
+        const token = await generateAccessToken(savedUser._id, 1);
         res.json({
           result: true,
           message: "New user has been saved",
@@ -63,6 +65,9 @@ router.get("/infos", authenticateToken, async (req, res) => {
       path: "conversationList",
       populate: { path: "user1 user2", select: "username photoList" },
     });
+    if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
+      await User.findByIdAndUpdate(req.userId, {valid: true});
+    }
     res.json({ result: true, user });
   } catch (error) {
     console.log(error);
@@ -71,33 +76,24 @@ router.get("/infos", authenticateToken, async (req, res) => {
 });
 
 const genderCheck = (value) => {
-  if (value === "Homme" || value === "Femme" || value === "Non binaire") {
-    return true;
-  }
-  return false;
+	if (value === "Homme" || value === "Femme" || value === "Non binaire") {
+		return true;
+	}
+	return false;
 };
 
 const orientationCheck = (value) => {
-  if (value === "Homme" || value === "Femme" || value === "Tout") {
-    return true;
-  }
-  return false;
+	if (value === "Homme" || value === "Femme" || value === "Tout") {
+		return true;
+	}
+	return false;
 };
 
 const relationshipCheck = (value) => {
-  if (
-    [
-      "Chocolat chaud",
-      "Allongé",
-      "Thé",
-      "Expresso",
-      "Ristretto",
-      "Matcha",
-    ].some((x) => x === value)
-  ) {
-    return true;
-  }
-  return false;
+	if (["Chocolat chaud", "Allongé", "Thé", "Expresso", "Ristretto", "Matcha"].some((x) => x === value)) {
+		return true;
+	}
+	return false;
 };
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
@@ -114,6 +110,11 @@ router.put(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ result: false, error: errors.array() });
+      }
+      const currentDate = new Date();
+      const date = new Date(req.body.birthdate);
+      if (currentDate.valueOf() - date.valueOf() < 18 * 365 * 60 * 60 * 1000 * 24 || currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24) {
+        return res.json({result: false, error: 'Invalid date'});
       }
       await User.findByIdAndUpdate(req.userId, {
         birthdate: new Date(req.body.birthdate),
@@ -132,11 +133,13 @@ router.put(
 //_________________________________________________________ADD PICTURES_______________________________________________________________
 router.post(
   "/addPhoto/:i",
-  // authenticateToken,
+  authenticateToken,
   async function (req, res, next) {
-    const length = req.params.i;
+    let length = req.params.i;
     const paths = [];
     try {
+      const user = await User.findById(req.userId);
+      length = Math.min(length, 9 - user.photoList.length);
       for (let i = 0; i < length; i++) {
         paths.push(`./tmp/photo${uniqid()}.jpg`);
         const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
@@ -149,57 +152,57 @@ router.post(
         const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
         const uri = resultCloudinary.secure_url;
         photoURIList.push(uri);
-        await User.findByIdAndUpdate("689083d05634401ba79696fd", {
+        await User.findByIdAndUpdate(req.userId, {
           $push: { photoList: uri },
         });
         fs.unlinkSync(paths[i]);
       }
 
-      res.json({ result: true, photoURLList: photoURIList });
-    } catch (error) {
-      console.log(error);
-      for (let i = 0; i < paths.length; i++) {
-        fs.unlinkSync(paths[i]);
-      }
-      res.json({ result: false, error: "Server error" });
-    }
-  }
+			res.json({ result: true, photoURLList: photoURIList });
+		} catch (error) {
+			console.log(error);
+			for (let i = 0; i < paths.length; i++) {
+				fs.unlinkSync(paths[i]);
+			}
+			res.json({ result: false, error: "Server error" });
+		}
+	}
 );
 
 const latitudeCheck = (value) => {
-  const latitude = Number(value);
-  return latitude >= -90 && latitude <= 90;
+	const latitude = Number(value);
+	return latitude >= -90 && latitude <= 90;
 };
 
 const longitudeCheck = (value) => {
-  const longitude = Number(value);
-  return longitude >= -180 && longitude <= 180;
+	const longitude = Number(value);
+	return longitude >= -180 && longitude <= 180;
 };
 
 const numberSanitize = (value) => {
-  return Number(value);
+	return Number(value);
 };
 
 router.put(
-  "/location",
-  authenticateToken,
-  body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
-  body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
-  async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ result: false, error: errors.array() });
-      }
-      await User.findByIdAndUpdate(req.userId, {
-        latitude: req.body.latitude,
-        longitude: req.body.longitude,
-      });
-      res.json({ result: true, message: "User infos updated" });
-    } catch (error) {
-      res.status(500).json({ result: false, error: "Server error" });
-    }
-  }
+	"/location",
+	authenticateToken,
+	body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
+	body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
+	async (req, res) => {
+		try {
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				return res.status(400).json({ result: false, error: errors.array() });
+			}
+			await User.findByIdAndUpdate(req.userId, {
+				latitude: req.body.latitude,
+				longitude: req.body.longitude,
+			});
+			res.json({ result: true, message: "User infos updated" });
+		} catch (error) {
+			res.status(500).json({ result: false, error: "Server error" });
+		}
+	}
 );
 
 module.exports = router;
