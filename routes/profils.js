@@ -43,12 +43,12 @@ function deg2rad(deg) {
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId);
-		const data = await User.find({}).select("username birthdate gender orientation relationship photoList latitude longitude").limit(10);
+		const data = await User.find({}).select("username birthdate gender orientation relationship photoList latitude longitude tasteList").limit(10);
 		const result = [];
 		for (const element of data) {
-			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude } = element;
+			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tasteList} = element;
 			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({_id, username, birthdate, gender, orientation, relationship, photoList, distance });
+			result.push({_id, username, birthdate, gender, orientation, relationship, photoList, distance, tasteList });
 		}
 		res.json({ result: true, profilList: result });
 	} catch (error) {
@@ -59,15 +59,13 @@ router.get("/profil", authenticateToken, async (req, res) => {
 
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 
-router.put("/swipe", authenticateToken, body("action").isString(), body("username").isString().isLength({ max: 60 }).escape(), async (req, res) => {
-	console.log("Swipe - userId : " + req.body.userId);
-	console.log("Swipe - action : " + req.body.action);
+router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
-		const otherUser = await User.findOne({ username: req.body.username });
+		const otherUser = await User.findById(req.body.userId);
 		if (!otherUser) {
 			res.status(403).res.json({ result: false, error: "Profil non trouvé" });
 			return;
