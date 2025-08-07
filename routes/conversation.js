@@ -33,10 +33,12 @@ router.post('/message', authenticateToken,
     }
     let user = String(conversation.user1) === String(req.userId) ? 1 : 2;
     await Conversation.findByIdAndUpdate(req.body.conversationId, {$push: {messageList: {creator: user, date: new Date(), content: req.body.content}}});
-    pusher.trigger(String(req.userId), 'newMessage', {
+    pusher.trigger(String(conversation.user1), 'newMessage', {
         conversationId: String(conversation._id)
     });
-    console.log('test', String(req.userId))
+    pusher.trigger(String(conversation.user2), 'newMessage', {
+        conversationId: String(conversation._id)
+    });
     res.json({result: true});
   } catch(error) {
     console.log(error)
