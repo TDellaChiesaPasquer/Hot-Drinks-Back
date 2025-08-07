@@ -7,17 +7,16 @@ const Conversation = require("../models/conversations");
 const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult, param } = require("express-validator");
 const mongoose = require("mongoose");
+const Pusher = require("pusher");
 
-router.post('/test', authenticateToken, async (req, res) => {
-  const newConversation = new Conversation({
-          user1: req.userId,
-          user2: new mongoose.Types.ObjectId('68935956d6ad579fd8bb5f84'),
-          messageList: []
-        })
-        const conv = await newConversation.save();
-        await User.findByIdAndUpdate(req.userId, {$push: {conversationList: conv._id}});
-        await User.findByIdAndUpdate(new mongoose.Types.ObjectId('68935956d6ad579fd8bb5f84'), {$push: {conversationList: conv._id}});
-})
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APPID,
+    key: process.env.PUSHER_KEY,
+    secret: process.env.PUSHER_SECRET,
+    cluster: process.env.PUSHER_CLUSTER,
+    useTLS: true
+});
+
 
 router.post('/message', authenticateToken,
   body('content').isString().isLength({min: 1, max: 200}).escape(),
@@ -33,9 +32,16 @@ router.post('/message', authenticateToken,
       return res.json({result: false, error: 'Conversation non trouvée'});
     }
     let user = String(conversation.user1) === String(req.userId) ? 1 : 2;
-    await Conversation.findByIdAndUpdate(req.body.conversationId, {$push: {messageList: {creator: user, date: new Date(), content: req.body.content}}});
+    await Conversation.findByIdAndUpdate(req.body.conversationId, {$push: {messageList: {creator: user, date: new Date(), content: req.body.content, seen: false}}});
+    pusher.trigger(String(conversation.user1), 'newMessage', {
+        conversationId: String(conversation._id)
+    });
+    pusher.trigger(String(conversation.user2), 'newMessage', {
+        conversationId: String(conversation._id)
+    });
     res.json({result: true});
   } catch(error) {
+    console.log(error)
     res.json({result: false, error: 'Server error'});
   }
 });
@@ -57,5 +63,24 @@ router.get('/:conversationId', authenticateToken,
     res.json({result: false, error: 'Server error'});
   }
 });
+
+router.put('/:conversationId', authenticateToken,
+  param('conversationId').isString().isLength({max: 60}),async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ result: false, error: errors.array() });
+    }
+    const conversation = await Conversation.findById(req.params.conversationId);
+    if (!conversation || (String(conversation.user1._id) !== String(req.userId) && String(conversation.user2._id) !== String(req.userId))) {
+      return res.json({result: false, error: 'Conversation non trouvée'});
+    }
+    const otherUserNumber = String(conversation.user1._id) === String(req.userId) ? 2 : 1;
+    await Conversation.findByIdAndUpdate(req.params.conversationId, {$set: {'messageList.$[otherMessage].seen': true}}, {arrayFilters: [{'otherMessage': {creator: otherUserNumber, seen: false}}]});
+    res.json({result: true, conversation});
+  } catch(error) {
+    res.json({result: false, error: 'Server error'});
+  }
+})
 
 module.exports = router;
