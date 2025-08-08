@@ -27,7 +27,7 @@ const userSchema = mongoose.Schema({
   premiumAccount: Boolean,
   latitude: Number,
   longitude: Number,
-  blocklist: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  blockList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   conversationList: [{ type: mongoose.Schema.Types.ObjectId, ref: "conversations" },
   ],
   rdvList: [{ type: mongoose.Schema.Types.ObjectId, ref: "rdv" }],

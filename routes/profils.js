@@ -7,6 +7,15 @@ const Conversation = require("../models/conversations");
 const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 const mongoose = require('mongoose');
+const Pusher = require("pusher");
+
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APPID,
+    key: process.env.PUSHER_KEY,
+    secret: process.env.PUSHER_SECRET,
+    cluster: process.env.PUSHER_CLUSTER,
+    useTLS: true
+});
 
 //_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
 
@@ -26,11 +35,8 @@ function deg2rad(deg) {
 
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
-    console.log('test')
 		const user = await User.findById(req.userId).populate('proposedList');
-    console.log(user.proposedList);
     if (user.proposedList && user.proposedList.length !== 0) {
-		console.log('test')
       const result = [];
       for (const element of user.proposedList) {
         const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
@@ -55,7 +61,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
         }
       }
     ]);
-	console.log(data)
+    console.log(data)
 		const result = [];
 		for (const element of data) {
 			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
@@ -84,19 +90,15 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
-    console.log('test1')
     const user = await User.findById(req.userId);
     if (!user.proposedList.some(x => String(x) === String(req.body.userId))) {
       return res.json({result: false, error: 'Profil non proposé'});
     }
-    console.log('test2')
 		const otherUser = await User.findById(req.body.userId);
 		if (!otherUser) {
 			res.status(403).res.json({ result: false, error: "Profil non trouvé" });
 			return;
 		}
-    console.log('test3')
-    console.log('test', req.body.action.toLowerCase())
 		if (req.body.action.toLowerCase() === "like") {
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { likesList: req.body.userId }, $pull: {proposedList: new mongoose.Types.ObjectId(req.body.userId)}  
@@ -108,10 +110,17 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 					user1: req.userId,
 					user2: req.body.userId,
 					messageList: [],
+          lastActionDate: new Date()
 				});
 				const conv = await newConversation.save();
 				await User.findByIdAndUpdate(req.userId, { $push: { conversationList: conv._id }});
 				await User.findByIdAndUpdate(req.body.userId, { $push: { conversationList: conv._id }});
+        pusher.trigger(String(req.userId), 'match', {
+          conversationId: String(conv._id)
+        });
+        pusher.trigger(String(req.body.userId), 'match', {
+          conversationId: String(conv._id)
+        });
 			}
 			res.json({ result: true, likesList: data, match });
 			console.log("Le profil a été liké !");
