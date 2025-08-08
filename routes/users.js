@@ -29,7 +29,6 @@ router.post(
       if (data) {
         if (bcrypt.compareSync(req.body.password, data.password)) {
           const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
-          console.log(tokenNumber, data.tokenNumber)
           const token = await generateAccessToken(data._id, tokenNumber);
           res.json({
             result: true,
