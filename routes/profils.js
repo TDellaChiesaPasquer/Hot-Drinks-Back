@@ -61,7 +61,6 @@ router.get("/profil", authenticateToken, async (req, res) => {
         }
       }
     ]);
-    console.log(data)
 		const result = [];
 		for (const element of data) {
 			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
