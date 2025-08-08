@@ -6,6 +6,7 @@ const rdvSchema = mongoose.Schema({
   status: String,
   longitude: Number,
   latitude: Number,
+  address: String,
   date: Date,
 });
 
