@@ -36,7 +36,10 @@ router.post(
             token: token,
           });
         } else {
-          res.json({ result: false, error: "L'addresse email est déjà utilisée" });
+          res.json({
+            result: false,
+            error: "L'addresse email est déjà utilisée",
+          });
         }
       } else {
         const newUser = new User({
@@ -64,8 +67,13 @@ router.get("/infos", authenticateToken, async (req, res) => {
       path: "conversationList",
       populate: { path: "user1 user2", select: "username photoList" },
     });
-    if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
-      await User.findByIdAndUpdate(req.userId, {valid: true});
+    if (
+      !user.valid &&
+      user.birthdate &&
+      user.latitude &&
+      user.photoList.length !== 0
+    ) {
+      await User.findByIdAndUpdate(req.userId, { valid: true });
     }
     res.json({ result: true, user });
   } catch (error) {
@@ -75,24 +83,33 @@ router.get("/infos", authenticateToken, async (req, res) => {
 });
 
 const genderCheck = (value) => {
-	if (value === "Homme" || value === "Femme" || value === "Non binaire") {
-		return true;
-	}
-	return false;
+  if (value === "Homme" || value === "Femme" || value === "Non binaire") {
+    return true;
+  }
+  return false;
 };
 
 const orientationCheck = (value) => {
-	if (value === "Homme" || value === "Femme" || value === "Tout") {
-		return true;
-	}
-	return false;
+  if (value === "Homme" || value === "Femme" || value === "Tout") {
+    return true;
+  }
+  return false;
 };
 
 const relationshipCheck = (value) => {
-	if (["Chocolat chaud", "Allongé", "Thé", "Expresso", "Ristretto", "Matcha"].some((x) => x === value)) {
-		return true;
-	}
-	return false;
+  if (
+    [
+      "Chocolat chaud",
+      "Allongé",
+      "Thé",
+      "Expresso",
+      "Ristretto",
+      "Matcha",
+    ].some((x) => x === value)
+  ) {
+    return true;
+  }
+  return false;
 };
 
 //_________________________________________________________ADD USER INFOS_______________________________________________________________
@@ -112,8 +129,12 @@ router.put(
       }
       const currentDate = new Date();
       const date = new Date(req.body.birthdate);
-      if (currentDate.valueOf() - date.valueOf() < 18 * 365 * 60 * 60 * 1000 * 24 || currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24) {
-        return res.json({result: false, error: 'Date invalide'});
+      if (
+        currentDate.valueOf() - date.valueOf() <
+          18 * 365 * 60 * 60 * 1000 * 24 ||
+        currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24
+      ) {
+        return res.json({ result: false, error: "Date invalide" });
       }
       await User.findByIdAndUpdate(req.userId, {
         birthdate: new Date(req.body.birthdate),
@@ -130,78 +151,81 @@ router.put(
 );
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
-router.post(
-  "/addPhoto/:i",
-  authenticateToken,
-  async function (req, res, next) {
-    let length = req.params.i;
-    const paths = [];
-    try {
-      const user = await User.findById(req.userId);
-      length = Math.min(length, 9 - user.photoList.length);
-      for (let i = 0; i < length; i++) {
-        paths.push(`./tmp/photo${uniqid()}.jpg`);
-        const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
-        if (resultMove) {
-          throw new Error('Failed to move photo');
-        }
+router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
+  let length = req.params.i;
+  const paths = [];
+  try {
+    const user = await User.findById(req.userId);
+    length = Math.min(length, 9 - user.photoList.length);
+    for (let i = 0; i < length; i++) {
+      paths.push(`./tmp/photo${uniqid()}.jpg`);
+      const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
+      if (resultMove) {
+        throw new Error("Failed to move photo");
       }
-      const photoURIList = [];
-      for (let i = 0; i < paths.length; i++) {
-        const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
-        const uri = resultCloudinary.secure_url;
-        photoURIList.push(uri);
-        await User.findByIdAndUpdate(req.userId, {
-          $push: { photoList: uri },
-        });
-        fs.unlinkSync(paths[i]);
-      }
+    }
+    const photoURIList = [];
+    for (let i = 0; i < paths.length; i++) {
+      const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
+      const uri = resultCloudinary.secure_url;
+      photoURIList.push(uri);
+      await User.findByIdAndUpdate(req.userId, {
+        $push: { photoList: uri },
+      });
+      fs.unlinkSync(paths[i]);
+    }
 
-			res.json({ result: true, photoURLList: photoURIList });
-		} catch (error) {
-			console.log(error);
-			for (let i = 0; i < paths.length; i++) {
-				fs.unlinkSync(paths[i]);
-			}
-			res.json({ result: false, error: "Server error" });
-		}
-	}
-);
+    res.json({ result: true, photoURLList: photoURIList });
+  } catch (error) {
+    console.log(error);
+    for (let i = 0; i < paths.length; i++) {
+      fs.unlinkSync(paths[i]);
+    }
+    res.json({ result: false, error: "Server error" });
+  }
+});
 
 const latitudeCheck = (value) => {
-	const latitude = Number(value);
-	return latitude >= -90 && latitude <= 90;
+  const latitude = Number(value);
+  return latitude >= -90 && latitude <= 90;
 };
 
 const longitudeCheck = (value) => {
-	const longitude = Number(value);
-	return longitude >= -180 && longitude <= 180;
+  const longitude = Number(value);
+  return longitude >= -180 && longitude <= 180;
 };
 
 const numberSanitize = (value) => {
-	return Number(value);
+  return Number(value);
 };
 
 router.put(
-	"/location",
-	authenticateToken,
-	body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
-	body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
-	async (req, res) => {
-		try {
-			const errors = validationResult(req);
-			if (!errors.isEmpty()) {
-				return res.status(400).json({ result: false, error: errors.array() });
-			}
-			await User.findByIdAndUpdate(req.userId, {
-				latitude: req.body.latitude,
-				longitude: req.body.longitude,
-			});
-			res.json({ result: true, message: "User infos updated" });
-		} catch (error) {
-			res.status(500).json({ result: false, error: "Server error" });
-		}
-	}
+  "/location",
+  authenticateToken,
+  body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
+  body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      await User.findByIdAndUpdate(req.userId, {
+        latitude: req.body.latitude,
+        longitude: req.body.longitude,
+      });
+      res.json({ result: true, message: "User infos updated" });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
 );
+
+// router.post("/addTastes", authenticateToken,
+//   async function (req, res, next) {
+
+//   }
+
+// )
 
 module.exports = router;
