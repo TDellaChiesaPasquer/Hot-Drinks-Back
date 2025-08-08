@@ -77,7 +77,7 @@ router.put('/:conversationId', authenticateToken,
     }
     const otherUserNumber = String(conversation.user1._id) === String(req.userId) ? 2 : 1;
     await Conversation.findByIdAndUpdate(req.params.conversationId, {$set: {'messageList.$[otherMessage].seen': true}}, {arrayFilters: [{'otherMessage.creator': otherUserNumber}]});
-    pusher.trigger(String(conversation[`user${3 - userNumber}`]), 'newMessage', {
+    pusher.trigger(String(conversation[`user${otherUserNumber}`]), 'newMessage', {
         conversationId: String(conversation._id)
     });
     res.json({result: true, conversation});
