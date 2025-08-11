@@ -13,7 +13,6 @@ const uniqid = require("uniqid");
 const bcrypt = require("bcrypt");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
-const { updateConv } = require("../../Hot-Drinks-Front/reducers/user");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
@@ -49,6 +48,8 @@ router.post(
         const newUser = new User({
           email,
           password: hash,
+          ageRange: '18-65',
+          distance: 50
         });
 
 			const savedUser = await newUser.save();
@@ -145,7 +146,7 @@ router.put(
         username: req.body.username,
         gender: req.body.gender,
         orientation: req.body.orientation,
-        relashionship: req.body.relationship,
+        relationship: req.body.relationship,
       });
       res.json({ result: true, message: "User infos updated" });
     } catch (error) {
@@ -425,6 +426,65 @@ router.put(
       await User.findByIdAndUpdate(req.userId, {
         latitude: req.body.latitude,
         longitude: req.body.longitude,
+      });
+      res.json({ result: true, message: "User infos updated" });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
+);
+
+const distanceCheck = (value) => {
+  if (typeof value !== 'number') {
+    return false;
+  }
+  if (value <= 5) {
+    return false;
+  }
+  return true;
+};
+
+const ageRangeCheck = (value) => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+  if (value.length !== 5) {
+    return false;
+  }
+  const num1 = Number(value.slice(0, 2));
+  const num2 = Number(value.slice(3));
+  if (num1 === NaN || num2 === NaN) {
+    return false;
+  }
+  if (num2 - num1 < 1) {
+    return false;
+  }
+  if (num1 < 18 || num2 > 65) {
+    return false;
+  }
+  return true;
+}
+
+router.put(
+  "/algoInfos",
+  authenticateToken,
+  body("gender").custom(genderCheck),
+  body("orientation").custom(orientationCheck),
+  body("relationship").custom(relationshipCheck),
+  body("distance").custom(distanceCheck).customSanitizer(numberSanitize),
+  body('ageRange').custom(ageRangeCheck),
+  async function (req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      await User.findByIdAndUpdate(req.userId, {
+        gender: req.body.gender,
+        orientation: req.body.orientation,
+        relationship: req.body.relationship,
+        distance: req.body.distance,
+        ageRange: req.body.ageRange
       });
       res.json({ result: true, message: "User infos updated" });
     } catch (error) {
