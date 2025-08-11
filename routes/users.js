@@ -10,6 +10,7 @@ const uniqid = require("uniqid");
 const bcrypt = require("bcrypt");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
+const { updateConv } = require("../../Hot-Drinks-Front/reducers/user");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
@@ -221,11 +222,28 @@ router.put(
   }
 );
 
-// router.post("/addTastes", authenticateToken,
-//   async function (req, res, next) {
+router.post(
+  "/addAllTastes",
+  authenticateToken,
+  async function (req, res, next) {
+    try {
+      const tastesList = req.body.tastesList;
+      const updatedUser = await User.findByIdAndUpdate(req.userId, {
+        tastesList,
+      });
 
-//   }
-
-// )
+      if (!updatedUser) {
+        return res.status(404).json({ result: false, error: "User not found" });
+      }
+      res.json({
+        result: true,
+        message: "User tastes updated",
+        tastesList: updatedUser.tastesList,
+      });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
+);
 
 module.exports = router;
