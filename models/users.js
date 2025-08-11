@@ -36,6 +36,8 @@ const userSchema = mongoose.Schema({
   valid: { type: Boolean, default: false },
   tokenNumber: { type: Number, default: 0 },
   proposedList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  superlikeNumber: {type: Number, default: 0},
+  lastSuperlike: Date
 });
 
 const User = mongoose.model("users", userSchema);

@@ -40,12 +40,12 @@ router.get("/profil", authenticateToken, async (req, res) => {
     if (user.proposedList && user.proposedList.length !== 0) {
       const result = [];
       for (const element of user.proposedList) {
-        const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
+        const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList, superlikesList } = element;
         if (String(_id) === String(req.userId)) {
           continue;
         }
         const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-        result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList });
+        result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList, superlikesList });
       }
       res.json({ result: true, profilList: result });
       return;
@@ -74,7 +74,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
       if (result.length === 10) {
         break;
       }
-			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
+			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList, superlikesList } = element;
       if (String(_id) === String(req.userId)) {
         continue;
       }
@@ -86,7 +86,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
         continue;
       }
 			const distanceString = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance: distanceString, tastesList });
+			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance: distanceString, tastesList, superlikesList });
 		}
 		await User.findByIdAndUpdate(req.userId, { proposedList: result });
 		res.json({ result: true, profilList: result });
@@ -144,6 +144,9 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 			res.json({ result: true, likesList: data, match });
 			console.log("Le profil a été liké !");
 		} else if (req.body.action.toLowerCase() === "superlike") {
+      const superlikeDate = user.lastSuperlike || new Date();
+      const today = new Date();
+      today.setHours
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { superlikesList: req.body.userId },
 				$pull: { proposedList: new mongoose.Types.ObjectId(req.body.userId) },
