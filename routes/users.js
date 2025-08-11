@@ -12,7 +12,6 @@ const uniqid = require("uniqid");
 const bcrypt = require("bcrypt");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
-const { updateConv } = require("../../Hot-Drinks-Front/reducers/user");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
