@@ -145,8 +145,16 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 			console.log("Le profil a été liké !");
 		} else if (req.body.action.toLowerCase() === "superlike") {
       const superlikeDate = user.lastSuperlike || new Date();
-      const today = new Date();
-      today.setHours
+      const today = dayjs().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0);
+      let superlikeNumber = user.superlikeNumber;
+      if (today.valueOf() - superlikeDate.valueOf() > 0 || !superlikeNumber) {
+        superlikeNumber = 0;
+      }
+      if (superlikeNumber >= 3) {
+        res.json({result: false, error: 'Nombre maximal de superlike atteint'});
+        return;
+      }
+      await User.findByIdAndUpdate(req.userId, {lastSuperlike: new Date(), superlikeNumber: superlikeNumber + 1});
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { superlikesList: req.body.userId },
 				$pull: { proposedList: new mongoose.Types.ObjectId(req.body.userId) },
