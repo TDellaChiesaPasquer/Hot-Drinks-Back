@@ -3,6 +3,7 @@ var router = express.Router();
 
 require("../models/connection");
 const User = require("../models/users");
+const Conversation = require("../models/conversations");
 const { generateAccessToken, authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 
@@ -193,6 +194,7 @@ router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
 // Erreur 400 : indique qu'il y a eu une mauvaise demande du client et que le serveur ne peut pas la traiter
 // Erreur 404 : ressource inaccessible
 // Erreur 403 : ressource interdite d'accès
+// Erreur 409 : incohérence
 // Erreur 500 : erreur serveur
 
 // Modifier son mot de passe
@@ -299,23 +301,64 @@ router.put("/desactivateAccount", authenticateToken, async function (req, res) {
 // Attend le token
 // Supprime de la BDD le compte de l'utilisateur authentifié par son token
 router.delete("/deleteAccount", authenticateToken, async function (req, res) {
-	try {
-		const userId = req.userId;
+  try {
+    const userId = req.userId;
 
-		const user = await User.findById(userId);
-		if (!user) {
-			return res.status(404).json({ result: false, error: "User not found" });
-		}
+    // 1) Vérifier l'existence de l'utilisateur
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
+      return res.status(404).json({ result: false, error: "User not found" });
+    }
 
-		// Delete tout les conversation impliquant le user
+    // 2) Requête simple: récupérer toutes les conversations, puis filtrer en JS
+    const allConversations = await Conversation.find({});
+    const conversationsToDelete = allConversations.filter(function (conversation) {
+      return String(conversation.user1) === String(userId) || String(conversation.user2) === String(userId);
+    });
 
-		await User.deleteOne({ _id: userId });
+    if (conversationsToDelete.length > 0) {
+      // 3) Construire un Set des IDs des conversations à supprimer
+      const conversationIdSet = new Set(
+        conversationsToDelete.map(function (conversation) {
+          return String(conversation._id);
+        })
+      );
 
-		return res.json({ result: true, message: "The account successfully deleted from database" });
-	} catch (error) {
-		console.log("/deleteAccount :", error);
-		return res.status(500).json({ result: false, error: "Server error" });
-	}
+      // 4) Requête simple: récupérer tous les utilisateurs, puis filtrer leur conversationList en JS
+      const allUsers = await User.find({});
+
+      const updatePromises = [];
+      for (const userDocument of allUsers) {
+        const currentList = Array.isArray(userDocument.conversationList) ? userDocument.conversationList : [];
+        const filteredList = currentList.filter(function (conversationId) {
+          return !conversationIdSet.has(String(conversationId));
+        });
+
+        if (filteredList.length !== currentList.length) {
+          updatePromises.push(
+            User.updateOne({ _id: userDocument._id }, { conversationList: filteredList })
+          );
+        }
+      }
+      await Promise.all(updatePromises);
+
+      // 5) Supprimer les conversations une par une (requêtes simples)
+      for (const conversation of conversationsToDelete) {
+        await Conversation.deleteOne({ _id: conversation._id });
+      }
+    }
+
+    // 6) Supprimer l'utilisateur
+    await User.deleteOne({ _id: userId });
+
+    return res.json({
+      result: true,
+      message: "The account successfully deleted from database",
+    });
+  } catch (error) {
+    console.log("/deleteAccount :", error);
+    return res.status(500).json({ result: false, error: "Server error" });
+  }
 });
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
