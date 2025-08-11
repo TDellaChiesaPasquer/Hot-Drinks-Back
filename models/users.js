@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 
-const tasteSchema= mongoose.Schema({
-      category: String,
-      value: String,
-      star: Boolean,
-})
+const tasteSchema = mongoose.Schema({
+  category: String,
+  label: String,
+  value: String,
+  star: Boolean,
+});
 
 const userSchema = mongoose.Schema({
   username: String,
@@ -28,11 +29,12 @@ const userSchema = mongoose.Schema({
   latitude: Number,
   longitude: Number,
   blockList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
-  conversationList: [{ type: mongoose.Schema.Types.ObjectId, ref: "conversations" },
+  conversationList: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "conversations" },
   ],
   rdvList: [{ type: mongoose.Schema.Types.ObjectId, ref: "rdv" }],
-  valid: {type: Boolean, default: false},
-  tokenNumber: {type: Number, default: 0},
+  valid: { type: Boolean, default: false },
+  tokenNumber: { type: Number, default: 0 },
   proposedList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
 });
 
