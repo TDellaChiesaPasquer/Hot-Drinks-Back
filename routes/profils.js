@@ -6,15 +6,15 @@ const User = require("../models/users");
 const Conversation = require("../models/conversations");
 const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Pusher = require("pusher");
 
 const pusher = new Pusher({
-    appId: process.env.PUSHER_APPID,
-    key: process.env.PUSHER_KEY,
-    secret: process.env.PUSHER_SECRET,
-    cluster: process.env.PUSHER_CLUSTER,
-    useTLS: true
+	appId: process.env.PUSHER_APPID,
+	key: process.env.PUSHER_KEY,
+	secret: process.env.PUSHER_SECRET,
+	cluster: process.env.PUSHER_CLUSTER,
+	useTLS: true,
 });
 
 //_________________________________________________________ENVOYER DES PROFILS_______________________________________________________________
@@ -35,45 +35,45 @@ function deg2rad(deg) {
 
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
-		const user = await User.findById(req.userId).populate('proposedList');
-    if (user.proposedList && user.proposedList.length !== 0) {
-      const result = [];
-      for (const element of user.proposedList) {
-        const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
-        if (String(_id) === String(req.userId)) {
-          continue;
-        }
-        const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-        result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList });
-      }
-      res.json({ result: true, profilList: result });
-      return;
-    }
-    const data = await User.aggregate([
-      {
-        $match: {
-          valid: true,
-        }
-      },
-      {
-        $sample: {
-          size: 10
-        }
-      }
-    ]);
+		const user = await User.findById(req.userId).populate("proposedList");
+		if (user.proposedList && user.proposedList.length !== 0) {
+			const result = [];
+			for (const element of user.proposedList) {
+				const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
+				if (String(_id) === String(req.userId)) {
+					continue;
+				}
+				const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
+				result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList });
+			}
+			res.json({ result: true, profilList: result });
+			return;
+		}
+		const data = await User.aggregate([
+			{
+				$match: {
+					valid: true,
+				},
+			},
+			{
+				$sample: {
+					size: 10,
+				},
+			},
+		]);
 		const result = [];
 		for (const element of data) {
 			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
-      if (String(_id) === String(req.userId)) {
-        continue;
-      }
-      if (user.likesList.some((x) => String(x) === String(_id)) || user.superlikesList.some((x) => String(x) === String(_id))) {
-        continue;
-      }
+			if (String(_id) === String(req.userId)) {
+				continue;
+			}
+			if (user.likesList.some((x) => String(x) === String(_id)) || user.superlikesList.some((x) => String(x) === String(_id))) {
+				continue;
+			}
 			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
 			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList });
 		}
-    await User.findByIdAndUpdate(req.userId, {proposedList: result});
+		await User.findByIdAndUpdate(req.userId, { proposedList: result });
 		res.json({ result: true, profilList: result });
 	} catch (error) {
 		console.log(error);
@@ -89,10 +89,10 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
-    const user = await User.findById(req.userId);
-    if (!user.proposedList.some(x => String(x) === String(req.body.userId))) {
-      return res.json({result: false, error: 'Profil non proposé'});
-    }
+		const user = await User.findById(req.userId);
+		if (!user.proposedList.some((x) => String(x) === String(req.body.userId))) {
+			return res.json({ result: false, error: "Profil non proposé" });
+		}
 		const otherUser = await User.findById(req.body.userId);
 		if (!otherUser) {
 			res.status(403).res.json({ result: false, error: "Profil non trouvé" });
@@ -100,7 +100,8 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 		}
 		if (req.body.action.toLowerCase() === "like") {
 			const data = await User.findByIdAndUpdate(req.userId, {
-				$push: { likesList: req.body.userId }, $pull: {proposedList: new mongoose.Types.ObjectId(req.body.userId)}  
+				$push: { likesList: req.body.userId },
+				$pull: { proposedList: new mongoose.Types.ObjectId(req.body.userId) },
 			});
 			let match = false;
 			if (otherUser.likesList.some((x) => String(x) === String(req.userId)) || otherUser.superlikesList.some((x) => String(x) === String(req.userId))) {
@@ -109,29 +110,31 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 					user1: req.userId,
 					user2: req.body.userId,
 					messageList: [],
-          lastActionDate: new Date()
+					lastActionDate: new Date(),
 				});
 				const conv = await newConversation.save();
-				await User.findByIdAndUpdate(req.userId, { $push: { conversationList: conv._id }});
-				await User.findByIdAndUpdate(req.body.userId, { $push: { conversationList: conv._id }});
-        pusher.trigger(String(req.userId), 'match', {
-          conversationId: String(conv._id)
-        });
-        pusher.trigger(String(req.body.userId), 'match', {
-          conversationId: String(conv._id)
-        });
+				await User.findByIdAndUpdate(req.userId, { $push: { conversationList: conv._id } });
+				await User.findByIdAndUpdate(req.body.userId, { $push: { conversationList: conv._id } });
+				pusher.trigger(String(req.userId), "match", {
+					conversationId: String(conv._id),
+				});
+				pusher.trigger(String(req.body.userId), "match", {
+					conversationId: String(conv._id),
+				});
 			}
 			res.json({ result: true, likesList: data, match });
 			console.log("Le profil a été liké !");
 		} else if (req.body.action.toLowerCase() === "superlike") {
 			const data = await User.findByIdAndUpdate(req.userId, {
-				$push: { superlikesList: req.body.userId }, $pull: {proposedList: new mongoose.Types.ObjectId(req.body.userId)}  
+				$push: { superlikesList: req.body.userId },
+				$pull: { proposedList: new mongoose.Types.ObjectId(req.body.userId) },
 			});
 			res.json({ result: true, superlikesList: data });
 			console.log("Le profil a été superliké !");
 		} else {
 			const data = await User.findByIdAndUpdate(req.userId, {
-				$push: { dislikesList: req.body.userId }, $pull: {proposedList: new mongoose.Types.ObjectId(req.body.userId)}  
+				$push: { dislikesList: req.body.userId },
+				$pull: { proposedList: new mongoose.Types.ObjectId(req.body.userId) },
 			});
 			res.json({ result: false, dislikesList: data });
 			console.log("Le profil a été disliké !");

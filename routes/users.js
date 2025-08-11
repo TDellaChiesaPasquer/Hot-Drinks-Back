@@ -149,7 +149,7 @@ router.put("/password", authenticateToken, body("password").isString().isLength(
 		const { password: newPassword, currentPassword } = req.body;
 
 		// Récupère l'utilisateur
-		const user = await User.findById(userId);
+		const user = await User.findById(userId).select('password');
 		if (!user) {
 			return res.status(404).json({ result: false, error: "User not found" });
 		}
@@ -166,6 +166,7 @@ router.put("/password", authenticateToken, body("password").isString().isLength(
 			return res.status(400).json({ result: false, error: "New password must be different from current password" });
 		}
 
+		// A modifier => Utiliser un update en base de données
 		// Hash et sauvegarde
 		user.password = await bcrypt.hash(newPassword, salt);
 		await user.save();
@@ -192,6 +193,7 @@ router.put("/email", authenticateToken, body("email").isEmail().normalizeEmail()
 
 		// Vérifie l'unicité de l'email (hors utilisateur courant)
 		const emailInUse = await User.exists({ email: newEmail, _id: { $ne: userId } });
+		// Le code de statut de réponse 409 Conflict indique que la requête entre en conflit avec l'état actuel du serveur.
 		if (emailInUse) {
 			return res.status(409).json({ result: false, error: "Email already in use" });
 		}
@@ -219,8 +221,7 @@ router.put("/desactivateAccount", authenticateToken, async function (req, res) {
 	try {
 		const userId = req.userId;
 
-		// new: If set to true, returns the modified document rather than the original. Defaults to false.
-		const updated = await User.findByIdAndUpdate(userId, { disableAccount: true }, { new: true });
+		const updated = await User.findByIdAndUpdate(userId, { disableAccount: true });
 
 		if (!updated) {
 			return res.status(404).json({ result: false, error: "User not found" });
@@ -244,6 +245,8 @@ router.delete("/deleteAccount", authenticateToken, async function (req, res) {
 		if (!user) {
 			return res.status(404).json({ result: false, error: "User not found" });
 		}
+
+		// Delete tout les conversation impliquant le user
 
 		await User.deleteOne({ _id: userId });
 
