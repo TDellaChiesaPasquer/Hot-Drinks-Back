@@ -48,6 +48,8 @@ router.post(
         const newUser = new User({
           email,
           password: hash,
+          ageRange: '18-65',
+          distance: 50
         });
 
 			const savedUser = await newUser.save();
