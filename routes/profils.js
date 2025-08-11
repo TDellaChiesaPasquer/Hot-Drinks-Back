@@ -33,6 +33,7 @@ function deg2rad(deg) {
 	return deg * (Math.PI / 180);
 }
 
+
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId).populate('proposedList');
@@ -49,29 +50,43 @@ router.get("/profil", authenticateToken, async (req, res) => {
       res.json({ result: true, profilList: result });
       return;
     }
+    const genderList = user.relationship === 'Homme' ? ['Homme'] : user.relationship === 'Femme' ? ['Femme'] : ['Homme', 'Femme', 'Non binaire'];
+    const relationshipList = user.gender === 'Homme' ? ['Homme', 'Tout'] : user.relationship === 'Femme' ? ['Femme', 'Tout'] : ['Tout'];
+    const ageMin = new Date((new Date()).valueOf() - (Number(user.ageRange.slice(0, 2)) * 365 * 24 * 60 * 60 * 1000));
+    const ageMax = new Date((new Date()).valueOf() - (Number(user.ageRange.slice(3) === '65' ? '120' : user.ageRange.slice(3)) * 365 * 24 * 60 * 60 * 1000));
     const data = await User.aggregate([
       {
         $match: {
           valid: true,
+          gender: {$in: genderList},
+          relationship: {$in: relationshipList},
+          birthdate: {$lte: ageMin, $gte: ageMax},
         }
       },
       {
         $sample: {
-          size: 10
+          size: 2000
         }
       }
     ]);
 		const result = [];
 		for (const element of data) {
+      if (result.length === 10) {
+        break;
+      }
 			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList } = element;
       if (String(_id) === String(req.userId)) {
         continue;
       }
-      if (user.likesList.some((x) => String(x) === String(_id)) || user.superlikesList.some((x) => String(x) === String(_id))) {
+      if (user.likesList.some((x) => String(x) === String(_id)) || user.superlikesList.some((x) => String(x) === String(_id)) || user.blockList.some((x) => String(x) === String(_id))) {
         continue;
       }
-			const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList });
+      const distance = Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude));
+      if (distance > user.distance) {
+        continue;
+      }
+			const distanceString = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
+			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance: distanceString, tastesList });
 		}
     await User.findByIdAndUpdate(req.userId, {proposedList: result});
 		res.json({ result: true, profilList: result });
