@@ -16,41 +16,37 @@ const fs = require("fs");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
-router.post(
-  "/signup",
-  body("email").isEmail().escape(),
-  body("password").isString().isLength({ min: 8, max: 32 }),
-  async function (req, res, next) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ result: false, error: errors.array() });
-      }
-      const email = req.body.email.toLowerCase();
-      const data = await User.findOne({ email }).select("password tokenNumber");
-      const hash = bcrypt.hashSync(req.body.password, 10);
-      if (data) {
-        if (bcrypt.compareSync(req.body.password, data.password)) {
-          const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
-          const token = await generateAccessToken(data._id, tokenNumber);
-          res.json({
-            result: true,
-            message: "User is connected",
-            token: token,
-          });
-        } else {
-          res.json({
-            result: false,
-            error: "L'addresse email est déjà utilisée",
-          });
-        }
-      } else {
-        const newUser = new User({
-          email,
-          password: hash,
-          ageRange: '18-65',
-          distance: 50
-        });
+router.post("/signup", body("email").isEmail().escape(), body("password").isString().isLength({ min: 8, max: 32 }), async function (req, res, next) {
+	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ result: false, error: errors.array() });
+		}
+		const email = req.body.email.toLowerCase();
+		const data = await User.findOne({ email }).select("password tokenNumber");
+		const hash = bcrypt.hashSync(req.body.password, 10);
+		if (data) {
+			if (bcrypt.compareSync(req.body.password, data.password)) {
+				const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
+				const token = await generateAccessToken(data._id, tokenNumber);
+				res.json({
+					result: true,
+					message: "User is connected",
+					token: token,
+				});
+			} else {
+				res.json({
+					result: false,
+					error: "L'addresse email est déjà utilisée",
+				});
+			}
+		} else {
+			const newUser = new User({
+				email,
+				password: hash,
+				ageRange: "18-65",
+				distance: 50,
+			});
 
 			const savedUser = await newUser.save();
 			const token = await generateAccessToken(savedUser._id, 1);
@@ -66,128 +62,110 @@ router.post(
 });
 
 router.get("/infos", authenticateToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.userId).populate({
-      path: "conversationList",
-      populate: { path: "user1 user2", select: "username photoList" },
-    });
-    if (
-      !user.valid &&
-      user.birthdate &&
-      user.latitude &&
-      user.photoList.length !== 0
-    ) {
-      await User.findByIdAndUpdate(req.userId, { valid: true });
-    }
-    res.json({ result: true, user });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ result: false, error: "Server error" });
-  }
+	try {
+		const user = await User.findById(req.userId).populate({
+			path: "conversationList",
+			populate: { path: "user1 user2", select: "username photoList" },
+		});
+		if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
+			await User.findByIdAndUpdate(req.userId, { valid: true });
+		}
+		res.json({ result: true, user });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ result: false, error: "Server error" });
+	}
 });
 
 const genderCheck = (value) => {
-  if (value === "Homme" || value === "Femme" || value === "Non binaire") {
-    return true;
-  }
-  return false;
+	if (value === "Homme" || value === "Femme" || value === "Non binaire") {
+		return true;
+	}
+	return false;
 };
 
 const orientationCheck = (value) => {
-  if (value === "Homme" || value === "Femme" || value === "Tout") {
-    return true;
-  }
-  return false;
+	if (value === "Homme" || value === "Femme" || value === "Tout") {
+		return true;
+	}
+	return false;
 };
 
 const relationshipCheck = (value) => {
-  if (
-    [
-      "Chocolat chaud",
-      "Allongé",
-      "Thé",
-      "Expresso",
-      "Ristretto",
-      "Matcha",
-    ].some((x) => x === value)
-  ) {
-    return true;
-  }
-  return false;
+	if (["Chocolat chaud", "Allongé", "Thé", "Expresso", "Ristretto", "Matcha"].some((x) => x === value)) {
+		return true;
+	}
+	return false;
 };
 
 //_________________________________________________________ADD USER INFOS_____________________________________________________________
 
 router.put(
-  "/userInfos",
-  authenticateToken,
-  body("birthdate").isISO8601(),
-  body("username").isString().isLength({ max: 40 }).escape(),
-  body("gender").custom(genderCheck),
-  body("orientation").custom(orientationCheck),
-  body("relationship").custom(relationshipCheck),
-  async function (req, res, next) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ result: false, error: errors.array() });
-      }
-      const currentDate = new Date();
-      const date = new Date(req.body.birthdate);
-      if (
-        currentDate.valueOf() - date.valueOf() <
-          18 * 365 * 60 * 60 * 1000 * 24 ||
-        currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24
-      ) {
-        return res.json({ result: false, error: "Date invalide" });
-      }
-      await User.findByIdAndUpdate(req.userId, {
-        birthdate: new Date(req.body.birthdate),
-        username: req.body.username,
-        gender: req.body.gender,
-        orientation: req.body.orientation,
-        relationship: req.body.relationship,
-      });
-      res.json({ result: true, message: "User infos updated" });
-    } catch (error) {
-      res.status(500).json({ result: false, error: "Server error" });
-    }
-  }
+	"/userInfos",
+	authenticateToken,
+	body("birthdate").isISO8601(),
+	body("username").isString().isLength({ max: 40 }).escape(),
+	body("gender").custom(genderCheck),
+	body("orientation").custom(orientationCheck),
+	body("relationship").custom(relationshipCheck),
+	async function (req, res, next) {
+		try {
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				return res.status(400).json({ result: false, error: errors.array() });
+			}
+			const currentDate = new Date();
+			const date = new Date(req.body.birthdate);
+			if (currentDate.valueOf() - date.valueOf() < 18 * 365 * 60 * 60 * 1000 * 24 || currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24) {
+				return res.json({ result: false, error: "Date invalide" });
+			}
+			await User.findByIdAndUpdate(req.userId, {
+				birthdate: new Date(req.body.birthdate),
+				username: req.body.username,
+				gender: req.body.gender,
+				orientation: req.body.orientation,
+				relationship: req.body.relationship,
+			});
+			res.json({ result: true, message: "User infos updated" });
+		} catch (error) {
+			res.status(500).json({ result: false, error: "Server error" });
+		}
+	}
 );
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
 router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
-  let length = req.params.i;
-  const paths = [];
-  try {
-    const user = await User.findById(req.userId);
-    length = Math.min(length, 9 - user.photoList.length);
-    for (let i = 0; i < length; i++) {
-      paths.push(`./tmp/photo${uniqid()}.jpg`);
-      const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
-      if (resultMove) {
-        throw new Error("Failed to move photo");
-      }
-    }
-    const photoURIList = [];
-    for (let i = 0; i < paths.length; i++) {
-      const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
-      const uri = resultCloudinary.secure_url;
-      photoURIList.push(uri);
-      await User.findByIdAndUpdate(req.userId, {
-        $push: { photoList: uri },
-      });
-      fs.unlinkSync(paths[i]);
-    }
+	let length = req.params.i;
+	const paths = [];
+	try {
+		const user = await User.findById(req.userId);
+		length = Math.min(length, 9 - user.photoList.length);
+		for (let i = 0; i < length; i++) {
+			paths.push(`./tmp/photo${uniqid()}.jpg`);
+			const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
+			if (resultMove) {
+				throw new Error("Failed to move photo");
+			}
+		}
+		const photoURIList = [];
+		for (let i = 0; i < paths.length; i++) {
+			const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
+			const uri = resultCloudinary.secure_url;
+			photoURIList.push(uri);
+			await User.findByIdAndUpdate(req.userId, {
+				$push: { photoList: uri },
+			});
+			fs.unlinkSync(paths[i]);
+		}
 
-    res.json({ result: true, photoURLList: photoURIList });
-  } catch (error) {
-    console.log(error);
-    for (let i = 0; i < paths.length; i++) {
-      fs.unlinkSync(paths[i]);
-    }
-    res.json({ result: false, error: "Server error" });
-  }
+		res.json({ result: true, photoURLList: photoURIList });
+	} catch (error) {
+		console.log(error);
+		for (let i = 0; i < paths.length; i++) {
+			fs.unlinkSync(paths[i]);
+		}
+		res.json({ result: false, error: "Server error" });
+	}
 });
 
 //_________________________________________________________SETTINGS_____________________________________________________________
@@ -213,7 +191,7 @@ router.put("/password", authenticateToken, body("password").isString().isLength(
 		const { password: newPassword, currentPassword } = req.body;
 
 		// Récupère l'utilisateur
-		const user = await User.findById(userId).select('password');
+		const user = await User.findById(userId).select("password");
 		if (!user) {
 			return res.status(404).json({ result: false, error: "User not found" });
 		}
@@ -302,64 +280,41 @@ router.put("/desactivateAccount", authenticateToken, async function (req, res) {
 // Attend le token
 // Supprime de la BDD le compte de l'utilisateur authentifié par son token
 router.delete("/deleteAccount", authenticateToken, async function (req, res) {
-  try {
-    const userId = req.userId;
+	try {
+		const userId = req.userId;
 
-    // 1) Vérifier l'existence de l'utilisateur
-    const existingUser = await User.findById(userId);
-    if (!existingUser) {
-      return res.status(404).json({ result: false, error: "User not found" });
-    }
+		// 1) Vérifier l'existence de l'utilisateur
+		const existingUser = await User.findById(userId);
+		if (!existingUser) {
+			return res.status(404).json({ result: false, error: "User not found" });
+		}
 
-    // 2) Requête simple: récupérer toutes les conversations, puis filtrer en JS
-    const allConversations = await Conversation.find({});
-    const conversationsToDelete = allConversations.filter(function (conversation) {
-      return String(conversation.user1) === String(userId) || String(conversation.user2) === String(userId);
-    });
+		// 2) On enlève les références aux conversation pour chacun des suers de la conversation
+		const conv1 = await Conversation.find({ user1: req.userId });
+		const conv2 = await Conversation.find({ user2: req.userId });
 
-    if (conversationsToDelete.length > 0) {
-      // 3) Construire un Set des IDs des conversations à supprimer
-      const conversationIdSet = new Set(
-        conversationsToDelete.map(function (conversation) {
-          return String(conversation._id);
-        })
-      );
+		for (const conv of conv1) {
+			await User.findByIdAndUpdate(conv.user2, { $pull: { conversationList: conv._id } });
+		}
+		for (const conv of conv2) {
+			await User.findByIdAndUpdate(conv.user1, { $pull: { conversationList: conv._id } });
+		}
 
-      // 4) Requête simple: récupérer tous les utilisateurs, puis filtrer leur conversationList en JS
-      const allUsers = await User.find({});
+		// 3) On supprime les conversations impiquant le compte user à supprimer
+		await Conversation.deleteMany({ user1: req.userId });
+		await Conversation.deleteMany({ user2: req.userId });
 
-      const updatePromises = [];
-      for (const userDocument of allUsers) {
-        const currentList = Array.isArray(userDocument.conversationList) ? userDocument.conversationList : [];
-        const filteredList = currentList.filter(function (conversationId) {
-          return !conversationIdSet.has(String(conversationId));
-        });
+		// 4) On supprime l'utilisateur
+		await User.deleteOne({ _id: userId });
 
-        if (filteredList.length !== currentList.length) {
-          updatePromises.push(
-            User.updateOne({ _id: userDocument._id }, { conversationList: filteredList })
-          );
-        }
-      }
-      await Promise.all(updatePromises);
-
-      // 5) Supprimer les conversations une par une (requêtes simples)
-      for (const conversation of conversationsToDelete) {
-        await Conversation.deleteOne({ _id: conversation._id });
-      }
-    }
-
-    // 6) Supprimer l'utilisateur
-    await User.deleteOne({ _id: userId });
-
-    return res.json({
-      result: true,
-      message: "The account successfully deleted from database",
-    });
-  } catch (error) {
-    console.log("/deleteAccount :", error);
-    return res.status(500).json({ result: false, error: "Server error" });
-  }
+		return res.json({
+			result: true,
+			message: "The account successfully deleted from database",
+		});
+	} catch (error) {
+		console.log("/deleteAccount :", error);
+		return res.status(500).json({ result: false, error: "Server error" });
+	}
 });
 
 //_________________________________________________________ADD PICTURES_______________________________________________________________
@@ -399,122 +354,118 @@ router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
 });
 
 const latitudeCheck = (value) => {
-  const latitude = Number(value);
-  return latitude >= -90 && latitude <= 90;
+	const latitude = Number(value);
+	return latitude >= -90 && latitude <= 90;
 };
 
 const longitudeCheck = (value) => {
-  const longitude = Number(value);
-  return longitude >= -180 && longitude <= 180;
+	const longitude = Number(value);
+	return longitude >= -180 && longitude <= 180;
 };
 
 const numberSanitize = (value) => {
-  return Number(value);
+	return Number(value);
 };
 
 router.put(
-  "/location",
-  authenticateToken,
-  body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
-  body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
-  async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ result: false, error: errors.array() });
-      }
-      await User.findByIdAndUpdate(req.userId, {
-        latitude: req.body.latitude,
-        longitude: req.body.longitude,
-      });
-      res.json({ result: true, message: "User infos updated" });
-    } catch (error) {
-      res.status(500).json({ result: false, error: "Server error" });
-    }
-  }
+	"/location",
+	authenticateToken,
+	body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
+	body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
+	async (req, res) => {
+		try {
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				return res.status(400).json({ result: false, error: errors.array() });
+			}
+			await User.findByIdAndUpdate(req.userId, {
+				latitude: req.body.latitude,
+				longitude: req.body.longitude,
+			});
+			res.json({ result: true, message: "User infos updated" });
+		} catch (error) {
+			res.status(500).json({ result: false, error: "Server error" });
+		}
+	}
 );
 
 const distanceCheck = (value) => {
-  if (typeof value !== 'number') {
-    return false;
-  }
-  if (value <= 5) {
-    return false;
-  }
-  return true;
+	if (typeof value !== "number") {
+		return false;
+	}
+	if (value <= 5) {
+		return false;
+	}
+	return true;
 };
 
 const ageRangeCheck = (value) => {
-  if (typeof value !== 'string') {
-    return false;
-  }
-  if (value.length !== 5) {
-    return false;
-  }
-  const num1 = Number(value.slice(0, 2));
-  const num2 = Number(value.slice(3));
-  if (num1 === NaN || num2 === NaN) {
-    return false;
-  }
-  if (num2 - num1 < 1) {
-    return false;
-  }
-  if (num1 < 18 || num2 > 65) {
-    return false;
-  }
-  return true;
-}
+	if (typeof value !== "string") {
+		return false;
+	}
+	if (value.length !== 5) {
+		return false;
+	}
+	const num1 = Number(value.slice(0, 2));
+	const num2 = Number(value.slice(3));
+	if (num1 === NaN || num2 === NaN) {
+		return false;
+	}
+	if (num2 - num1 < 1) {
+		return false;
+	}
+	if (num1 < 18 || num2 > 65) {
+		return false;
+	}
+	return true;
+};
 
 router.put(
-  "/algoInfos",
-  authenticateToken,
-  body("gender").custom(genderCheck),
-  body("orientation").custom(orientationCheck),
-  body("relationship").custom(relationshipCheck),
-  body("distance").custom(distanceCheck).customSanitizer(numberSanitize),
-  body('ageRange').custom(ageRangeCheck),
-  async function (req, res, next) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ result: false, error: errors.array() });
-      }
-      await User.findByIdAndUpdate(req.userId, {
-        gender: req.body.gender,
-        orientation: req.body.orientation,
-        relationship: req.body.relationship,
-        distance: req.body.distance,
-        ageRange: req.body.ageRange
-      });
-      res.json({ result: true, message: "User infos updated" });
-    } catch (error) {
-      res.status(500).json({ result: false, error: "Server error" });
-    }
-  }
+	"/algoInfos",
+	authenticateToken,
+	body("gender").custom(genderCheck),
+	body("orientation").custom(orientationCheck),
+	body("relationship").custom(relationshipCheck),
+	body("distance").custom(distanceCheck).customSanitizer(numberSanitize),
+	body("ageRange").custom(ageRangeCheck),
+	async function (req, res, next) {
+		try {
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				return res.status(400).json({ result: false, error: errors.array() });
+			}
+			await User.findByIdAndUpdate(req.userId, {
+				gender: req.body.gender,
+				orientation: req.body.orientation,
+				relationship: req.body.relationship,
+				distance: req.body.distance,
+				ageRange: req.body.ageRange,
+			});
+			res.json({ result: true, message: "User infos updated" });
+		} catch (error) {
+			res.status(500).json({ result: false, error: "Server error" });
+		}
+	}
 );
 
-router.post(
-  "/addAllTastes",
-  authenticateToken,
-  async function (req, res, next) {
-    try {
-      const tastesList = req.body.tastesList;
-      const updatedUser = await User.findByIdAndUpdate(req.userId, {
-        tastesList,
-      });
+router.post("/addAllTastes", authenticateToken, async function (req, res, next) {
+	try {
+		const tastesList = req.body.tastesList;
+		const updatedUser = await User.findByIdAndUpdate(req.userId, {
+			tastesList,
+		});
 
-      if (!updatedUser) {
-        return res.status(404).json({ result: false, error: "User not found" });
-      }
-      res.json({
-        result: true,
-        message: "User tastes updated",
-        tastesList: updatedUser.tastesList,
-      });
-    } catch (error) {
-      res.status(500).json({ result: false, error: "Server error" });
-    }
-  }
-);
+		if (!updatedUser) {
+			return res.status(404).json({ result: false, error: "User not found" });
+		}
+		res.json({
+			result: true,
+			message: "User tastes updated",
+			tastesList: updatedUser.tastesList,
+		});
+	} catch (error) {
+		res.status(500).json({ result: false, error: "Server error" });
+	}
+});
 
 module.exports = router;
