@@ -64,21 +64,6 @@ router.post(
 });
 
 router.get("/infos", authenticateToken, async (req, res) => {
-<<<<<<< HEAD
-	try {
-		const user = await User.findById(req.userId).populate({
-			path: "conversationList",
-			populate: { path: "user1 user2", select: "username photoList" },
-		});
-		if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
-			await User.findByIdAndUpdate(req.userId, { valid: true });
-		}
-		res.json({ result: true, user });
-	} catch (error) {
-		console.log(error);
-		res.status(500).json({ result: false, error: "Server error" });
-	}
-=======
   try {
     const user = await User.findById(req.userId).populate({
       path: "conversationList",
@@ -97,7 +82,6 @@ router.get("/infos", authenticateToken, async (req, res) => {
     console.log(error);
     res.status(500).json({ result: false, error: "Server error" });
   }
->>>>>>> 05e6b431793b0dfcb818cc951b47aceec94cffd3
 });
 
 const genderCheck = (value) => {
@@ -133,39 +117,6 @@ const relationshipCheck = (value) => {
 //_________________________________________________________ADD USER INFOS_____________________________________________________________
 
 router.put(
-<<<<<<< HEAD
-	"/userInfos",
-	authenticateToken,
-	body("birthdate").isISO8601(),
-	body("username").isString().isLength({ max: 40 }).escape(),
-	body("gender").custom(genderCheck),
-	body("orientation").custom(orientationCheck),
-	body("relationship").custom(relationshipCheck),
-	async function (req, res, next) {
-		try {
-			const errors = validationResult(req);
-			if (!errors.isEmpty()) {
-				return res.status(400).json({ result: false, error: errors.array() });
-			}
-			const currentDate = new Date();
-			const date = new Date(req.body.birthdate);
-			if (currentDate.valueOf() - date.valueOf() < 18 * 365 * 60 * 60 * 1000 * 24 || currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24) {
-				return res.json({ result: false, error: "Date invalide" });
-			}
-			await User.findByIdAndUpdate(req.userId, {
-				birthdate: new Date(req.body.birthdate),
-				username: req.body.username,
-				gender: req.body.gender,
-				orientation: req.body.orientation,
-				relashionship: req.body.relationship,
-			});
-			res.json({ result: true, message: "User infos updated" });
-		} catch (error) {
-			res.status(500).json({ result: false, error: "Server error" });
-		}
-	}
-);
-=======
   "/userInfos",
   authenticateToken,
   body("birthdate").isISO8601(),
@@ -236,7 +187,6 @@ router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
     res.json({ result: false, error: "Server error" });
   }
 });
->>>>>>> 05e6b431793b0dfcb818cc951b47aceec94cffd3
 
 //_________________________________________________________SETTINGS_____________________________________________________________
 
