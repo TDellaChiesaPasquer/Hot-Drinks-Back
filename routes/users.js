@@ -12,35 +12,43 @@ const uniqid = require("uniqid");
 const bcrypt = require("bcrypt");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
+const { updateConv } = require("../../Hot-Drinks-Front/reducers/user");
 
 //_________________________________________________________SIGN UP_______________________________________________________________
 
-router.post("/signup", body("email").isEmail().escape(), body("password").isString().isLength({ min: 8, max: 32 }), async function (req, res, next) {
-	try {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ result: false, error: errors.array() });
-		}
-		const email = req.body.email.toLowerCase();
-		const data = await User.findOne({ email }).select("password tokenNumber");
-		const hash = bcrypt.hashSync(req.body.password, salt);
-		if (data) {
-			if (bcrypt.compareSync(req.body.password, data.password)) {
-				const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
-				const token = await generateAccessToken(data._id, tokenNumber);
-				res.json({
-					result: true,
-					message: "User is connected",
-					token: token,
-				});
-			} else {
-				res.json({ result: false, error: "L'addresse email est déjà utilisée" });
-			}
-		} else {
-			const newUser = new User({
-				email,
-				password: hash,
-			});
+router.post(
+  "/signup",
+  body("email").isEmail().escape(),
+  body("password").isString().isLength({ min: 8, max: 32 }),
+  async function (req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      const email = req.body.email.toLowerCase();
+      const data = await User.findOne({ email }).select("password tokenNumber");
+      const hash = bcrypt.hashSync(req.body.password, 10);
+      if (data) {
+        if (bcrypt.compareSync(req.body.password, data.password)) {
+          const tokenNumber = data.tokenNumber ? data.tokenNumber + 1 : 1;
+          const token = await generateAccessToken(data._id, tokenNumber);
+          res.json({
+            result: true,
+            message: "User is connected",
+            token: token,
+          });
+        } else {
+          res.json({
+            result: false,
+            error: "L'addresse email est déjà utilisée",
+          });
+        }
+      } else {
+        const newUser = new User({
+          email,
+          password: hash,
+        });
 
 			const savedUser = await newUser.save();
 			const token = await generateAccessToken(savedUser._id, 1);
@@ -56,6 +64,7 @@ router.post("/signup", body("email").isEmail().escape(), body("password").isStri
 });
 
 router.get("/infos", authenticateToken, async (req, res) => {
+<<<<<<< HEAD
 	try {
 		const user = await User.findById(req.userId).populate({
 			path: "conversationList",
@@ -69,32 +78,62 @@ router.get("/infos", authenticateToken, async (req, res) => {
 		console.log(error);
 		res.status(500).json({ result: false, error: "Server error" });
 	}
+=======
+  try {
+    const user = await User.findById(req.userId).populate({
+      path: "conversationList",
+      populate: { path: "user1 user2", select: "username photoList" },
+    });
+    if (
+      !user.valid &&
+      user.birthdate &&
+      user.latitude &&
+      user.photoList.length !== 0
+    ) {
+      await User.findByIdAndUpdate(req.userId, { valid: true });
+    }
+    res.json({ result: true, user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ result: false, error: "Server error" });
+  }
+>>>>>>> 05e6b431793b0dfcb818cc951b47aceec94cffd3
 });
 
 const genderCheck = (value) => {
-	if (value === "Homme" || value === "Femme" || value === "Non binaire") {
-		return true;
-	}
-	return false;
+  if (value === "Homme" || value === "Femme" || value === "Non binaire") {
+    return true;
+  }
+  return false;
 };
 
 const orientationCheck = (value) => {
-	if (value === "Homme" || value === "Femme" || value === "Tout") {
-		return true;
-	}
-	return false;
+  if (value === "Homme" || value === "Femme" || value === "Tout") {
+    return true;
+  }
+  return false;
 };
 
 const relationshipCheck = (value) => {
-	if (["Chocolat chaud", "Allongé", "Thé", "Expresso", "Ristretto", "Matcha"].some((x) => x === value)) {
-		return true;
-	}
-	return false;
+  if (
+    [
+      "Chocolat chaud",
+      "Allongé",
+      "Thé",
+      "Expresso",
+      "Ristretto",
+      "Matcha",
+    ].some((x) => x === value)
+  ) {
+    return true;
+  }
+  return false;
 };
 
 //_________________________________________________________ADD USER INFOS_____________________________________________________________
 
 router.put(
+<<<<<<< HEAD
 	"/userInfos",
 	authenticateToken,
 	body("birthdate").isISO8601(),
@@ -126,6 +165,78 @@ router.put(
 		}
 	}
 );
+=======
+  "/userInfos",
+  authenticateToken,
+  body("birthdate").isISO8601(),
+  body("username").isString().isLength({ max: 40 }).escape(),
+  body("gender").custom(genderCheck),
+  body("orientation").custom(orientationCheck),
+  body("relationship").custom(relationshipCheck),
+  async function (req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      const currentDate = new Date();
+      const date = new Date(req.body.birthdate);
+      if (
+        currentDate.valueOf() - date.valueOf() <
+          18 * 365 * 60 * 60 * 1000 * 24 ||
+        currentDate.valueOf() - date.valueOf() > 130 * 365 * 60 * 60 * 1000 * 24
+      ) {
+        return res.json({ result: false, error: "Date invalide" });
+      }
+      await User.findByIdAndUpdate(req.userId, {
+        birthdate: new Date(req.body.birthdate),
+        username: req.body.username,
+        gender: req.body.gender,
+        orientation: req.body.orientation,
+        relashionship: req.body.relationship,
+      });
+      res.json({ result: true, message: "User infos updated" });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
+);
+
+//_________________________________________________________ADD PICTURES_______________________________________________________________
+router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
+  let length = req.params.i;
+  const paths = [];
+  try {
+    const user = await User.findById(req.userId);
+    length = Math.min(length, 9 - user.photoList.length);
+    for (let i = 0; i < length; i++) {
+      paths.push(`./tmp/photo${uniqid()}.jpg`);
+      const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
+      if (resultMove) {
+        throw new Error("Failed to move photo");
+      }
+    }
+    const photoURIList = [];
+    for (let i = 0; i < paths.length; i++) {
+      const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
+      const uri = resultCloudinary.secure_url;
+      photoURIList.push(uri);
+      await User.findByIdAndUpdate(req.userId, {
+        $push: { photoList: uri },
+      });
+      fs.unlinkSync(paths[i]);
+    }
+
+    res.json({ result: true, photoURLList: photoURIList });
+  } catch (error) {
+    console.log(error);
+    for (let i = 0; i < paths.length; i++) {
+      fs.unlinkSync(paths[i]);
+    }
+    res.json({ result: false, error: "Server error" });
+  }
+});
+>>>>>>> 05e6b431793b0dfcb818cc951b47aceec94cffd3
 
 //_________________________________________________________SETTINGS_____________________________________________________________
 
@@ -294,39 +405,63 @@ router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
 });
 
 const latitudeCheck = (value) => {
-	const latitude = Number(value);
-	return latitude >= -90 && latitude <= 90;
+  const latitude = Number(value);
+  return latitude >= -90 && latitude <= 90;
 };
 
 const longitudeCheck = (value) => {
-	const longitude = Number(value);
-	return longitude >= -180 && longitude <= 180;
+  const longitude = Number(value);
+  return longitude >= -180 && longitude <= 180;
 };
 
 const numberSanitize = (value) => {
-	return Number(value);
+  return Number(value);
 };
 
 router.put(
-	"/location",
-	authenticateToken,
-	body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
-	body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
-	async (req, res) => {
-		try {
-			const errors = validationResult(req);
-			if (!errors.isEmpty()) {
-				return res.status(400).json({ result: false, error: errors.array() });
-			}
-			await User.findByIdAndUpdate(req.userId, {
-				latitude: req.body.latitude,
-				longitude: req.body.longitude,
-			});
-			res.json({ result: true, message: "User infos updated" });
-		} catch (error) {
-			res.status(500).json({ result: false, error: "Server error" });
-		}
-	}
+  "/location",
+  authenticateToken,
+  body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
+  body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      await User.findByIdAndUpdate(req.userId, {
+        latitude: req.body.latitude,
+        longitude: req.body.longitude,
+      });
+      res.json({ result: true, message: "User infos updated" });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
+);
+
+router.post(
+  "/addAllTastes",
+  authenticateToken,
+  async function (req, res, next) {
+    try {
+      const tastesList = req.body.tastesList;
+      const updatedUser = await User.findByIdAndUpdate(req.userId, {
+        tastesList,
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ result: false, error: "User not found" });
+      }
+      res.json({
+        result: true,
+        message: "User tastes updated",
+        tastesList: updatedUser.tastesList,
+      });
+    } catch (error) {
+      res.status(500).json({ result: false, error: "Server error" });
+    }
+  }
 );
 
 module.exports = router;
