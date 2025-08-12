@@ -317,42 +317,6 @@ router.delete("/deleteAccount", authenticateToken, async function (req, res) {
 	}
 });
 
-//_________________________________________________________ADD PICTURES_______________________________________________________________
-
-router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
-	let length = req.params.i;
-	const paths = [];
-	try {
-		const user = await User.findById(req.userId);
-		length = Math.min(length, 9 - user.photoList.length);
-		for (let i = 0; i < length; i++) {
-			paths.push(`./tmp/photo${uniqid()}.jpg`);
-			const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
-			if (resultMove) {
-				throw new Error("Failed to move photo");
-			}
-		}
-		const photoURIList = [];
-		for (let i = 0; i < paths.length; i++) {
-			const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
-			const uri = resultCloudinary.secure_url;
-			photoURIList.push(uri);
-			await User.findByIdAndUpdate(req.userId, {
-				$push: { photoList: uri },
-			});
-			fs.unlinkSync(paths[i]);
-		}
-
-		res.json({ result: true, photoURLList: photoURIList });
-	} catch (error) {
-		console.log(error);
-		for (let i = 0; i < paths.length; i++) {
-			fs.unlinkSync(paths[i]);
-		}
-		res.json({ result: false, error: "Server error" });
-	}
-});
-
 const latitudeCheck = (value) => {
 	const latitude = Number(value);
 	return latitude >= -90 && latitude <= 90;
