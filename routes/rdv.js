@@ -220,14 +220,17 @@ router.get(
       if (!errors.isEmpty()) {
         return res.status(400).json({ result: false, error: errors.array() });
       }
-      const rdv = await Rdv.findById(req.params.rdvId);
+      const rdv = await Rdv.findById(req.params.rdvId).populate({
+        path: "creator receiver",
+        select: "username photoList",
+      });
       if (!rdv) {
         res.json({ result: false, error: "Rendez-vous introuvable" });
         return;
       }
       if (
-        String(rdv.receiver) !== String(req.userId) &&
-        String(rdv.creator) !== String(req.userId)
+        String(rdv.receiver._id) !== String(req.userId) &&
+        String(rdv.creator._id) !== String(req.userId)
       ) {
         res.json({
           result: false,
