@@ -69,7 +69,7 @@ router.put("/ask",
       `https://us1.locationiq.com/v1/reverse?key=${process.env.EXPO_PUBLIC_TOKEN}&lat=${req.body.latitude}&lon=${req.body.longitude}&format=json&`
     );
     const data = await requete.json();
-    //console.log(data);
+    console.log(data);
     const coordinateRdv = {
       latitude: parseFloat(data.lat),
       longitude: parseFloat(data.lon),
@@ -194,12 +194,12 @@ router.get("/reload/:rdvId", authenticateToken,
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
-    const rdv = await Rdv.findById(req.params.rdvId);
+    const rdv = await Rdv.findById(req.params.rdvId).populate({ path: "creator receiver", select: "username photoList" });
     if (!rdv) {
       res.json({result: false, error: 'Rendez-vous introuvable'});
       return;
     }
-    if (String(rdv.receiver) !== String(req.userId) && String(rdv.creator) !== String(req.userId)) {
+    if (String(rdv.receiver._id) !== String(req.userId) && String(rdv.creator._id) !== String(req.userId)) {
       res.json({result: false, error: "Vous n'êtes pas membre de ce rendez-vous"});
       return;
     }
