@@ -71,15 +71,21 @@ router.put("/ask", authenticateToken, async (req, res) => {
 
 router.put("/reponse", authenticateToken, async (req, res) => {
   try {
-    if (req.body.status === confirmé) {
-      const data = await User.findByIdAndUpdate(req.userId, {
-        $push: { rdvList: req.body.userId },
-        $pull: { rdvList: new mongoose.Types.ObjectId(req.body.userId) },
-      });
-      res.json({ result: true, rdvList: data });
-      console.log("Le rdv a été confirmé !");
-      res.json;
-    } else req.body.status === refusé;
+    const rdv = await Rdv.findById(req.body.rdvId);
+    if (!rdv) {
+      res.json({result: false, error: 'Rendez-vous introuvable'});
+      return;
+    }
+    if (String(rdv.receiver) !== String(req.userId)) {
+      res.json({result: false, error: "Vous n'êtes pas le destinataire de ce rendez-vous"});
+      return;
+    }
+    if (rdv.status !== 'demande') {
+      res.json({result: false, error: "La demande a déjà été remplie"});
+      return;
+    }
+    await Rdv.findByIdAndUpdate(rdv._id, {status: req.body.status});
+    res.json({result: true});
   } catch (error) {
     console.log(error);
     res.status(500).json({ result: false, error: "Server error" });
@@ -88,6 +94,21 @@ router.put("/reponse", authenticateToken, async (req, res) => {
 
 router.put("/cancel", authenticateToken, async (req, res) => {
   try {
+    const rdv = await Rdv.findById(req.body.rdvId);
+    if (!rdv) {
+      res.json({result: false, error: 'Rendez-vous introuvable'});
+      return;
+    }
+    if (String(rdv.receiver) !== String(req.userId) && String(rdv.creator) !== String(req.userId)) {
+      res.json({result: false, error: "Vous n'êtes pas membre de ce rendez-vous"});
+      return;
+    }
+    if (rdv.status !== 'confirmé') {
+      res.json({result: false, error: "Le rendez-vous ne peut être annulé"});
+      return;
+    }
+    await Rdv.findByIdAndUpdate(rdv._id, {status: 'cancel'});
+    res.json({result: true});
   } catch (error) {
     console.log(error);
     res.status(500).json({ result: false, error: "Server error" });
@@ -96,6 +117,16 @@ router.put("/cancel", authenticateToken, async (req, res) => {
 
 router.get("/reload", authenticateToken, async (req, res) => {
   try {
+    const rdv = await Rdv.findById(req.params.rdvId);
+    if (!rdv) {
+      res.json({result: false, error: 'Rendez-vous introuvable'});
+      return;
+    }
+    if (String(rdv.receiver) !== String(req.userId) && String(rdv.creator) !== String(req.userId)) {
+      res.json({result: false, error: "Vous n'êtes pas membre de ce rendez-vous"});
+      return;
+    }
+    res.json({result: true, rdv});
   } catch (error) {
     console.log(error);
     res.status(500).json({ result: false, error: "Server error" });
