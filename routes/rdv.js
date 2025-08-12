@@ -74,11 +74,12 @@ router.put(
         `https://us1.locationiq.com/v1/reverse?key=${process.env.EXPO_PUBLIC_TOKEN}&lat=${req.body.latitude}&lon=${req.body.longitude}&format=json&`
       );
       const data = await requete.json();
-      //console.log(data);
+      console.log(data);
       const coordinateRdv = {
         latitude: parseFloat(data.lat),
         longitude: parseFloat(data.lon),
-        address: data.address.government,
+        number: data.address.house_number,
+        road: data.address.road,
         city: data.address.city,
         country: data.address.country,
       };
@@ -89,7 +90,9 @@ router.put(
         longitude: req.body.longitude,
         latitude: req.body.latitude,
         address:
-          coordinateRdv.address +
+          coordinateRdv.number +
+          ", " +
+          coordinateRdv.road +
           ", " +
           coordinateRdv.city +
           ", " +
