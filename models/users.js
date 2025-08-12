@@ -32,7 +32,7 @@ const userSchema = mongoose.Schema({
   conversationList: [
     { type: mongoose.Schema.Types.ObjectId, ref: "conversations" },
   ],
-  rdvList: [{ type: mongoose.Schema.Types.ObjectId, ref: "rdv" }],
+  rdvList: [{ type: mongoose.Schema.Types.ObjectId, ref: "rdvs" }],
   valid: { type: Boolean, default: false },
   tokenNumber: { type: Number, default: 0 },
   proposedList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],

@@ -41,12 +41,23 @@ router.put(
   authenticateToken,
   async (req, res) => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ result: false, error: errors.array() });
+      }
+      const date = new Date(req.body.date);
+      if (date.valueOf() < new Date().valueOf()) {
+        return res.json({ result: false, error: "Date déjà passée" });
+      }
       const conv = await Conversation.findById(req.body.conversationId);
       if (!conv) {
         res.json({ result: false, error: "Pas de conversation !" });
         return;
       }
-      if (req.userId !== conv.user1 && req.userId !== conv.user2) {
+      if (
+        String(req.userId) !== String(conv.user1) &&
+        String(req.userId) !== String(conv.user2)
+      ) {
         res.json({
           result: false,
           error: "L'utilisateur ne fait pas parti de la conversation !",
@@ -54,7 +65,7 @@ router.put(
         return;
       }
       let receiver;
-      if (req.userId === conv.user1) {
+      if (String(req.userId) === String(conv.user1)) {
         receiver = conv.user2;
       } else {
         receiver = conv.user1;
@@ -83,10 +94,9 @@ router.put(
           coordinateRdv.city +
           ", " +
           coordinateRdv.country,
-        date: req.body.date,
+        date,
       });
       const rdv = await newRdv.save();
-      console.log("ici");
       await User.findByIdAndUpdate(req.userId, {
         $push: { rdvList: rdv._id },
       });

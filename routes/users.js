@@ -66,6 +66,9 @@ router.get("/infos", authenticateToken, async (req, res) => {
 		const user = await User.findById(req.userId).populate({
 			path: "conversationList",
 			populate: { path: "user1 user2", select: "username photoList" },
+		}).populate({
+			path: "rdvList",
+			populate: { path: "creator receiver", select: "username photoList" },
 		});
 		if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
 			await User.findByIdAndUpdate(req.userId, { valid: true });
