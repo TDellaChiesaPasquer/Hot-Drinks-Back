@@ -67,6 +67,8 @@ typings/
 
 # Scripts Ruby
 *.rb
+.concat_models.txt
+
 
 # Fichiers temporaires
 *projet.txt

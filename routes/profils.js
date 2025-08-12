@@ -34,7 +34,6 @@ function deg2rad(deg) {
 	return deg * (Math.PI / 180);
 }
 
-
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.userId).populate('proposedList');
@@ -115,7 +114,6 @@ const newMatch = async (req) => {
     conversationId: String(conv._id),
   });
 }
-
 
 router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
 	try {
