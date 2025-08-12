@@ -68,10 +68,15 @@ router.post(
 
 router.get("/infos", authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).populate({
-      path: "conversationList",
-      populate: { path: "user1 user2", select: "username photoList" },
-    });
+    const user = await User.findById(req.userId)
+      .populate({
+        path: "conversationList",
+        populate: { path: "user1 user2", select: "username photoList" },
+      })
+      .populate({
+        path: "rdvList",
+        populate: { path: "creator receiver", select: "username photoList" },
+      });
     if (
       !user.valid &&
       user.birthdate &&
