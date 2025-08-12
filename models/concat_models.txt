@@ -1,0 +1,120 @@
+Arborescence (profondeur max 4, sans node_modules) :
+.
+├── connection.js
+├── conversations.js
+├── projet.txt
+├── rdv.js
+└── users.js
+
+1 directory, 5 files
+
+
+
+# ./connection.js
+const mongoose = require("mongoose");
+
+const connectionString = process.env.CONNECTION_STRING;
+
+mongoose
+  .connect(connectionString, { connectTimeoutMS: 2000 })
+  .then(() => console.log("Database connected"))
+  .catch((error) => console.error(error));
+
+# ./connection.js
+
+# ./conversations.js
+const mongoose = require("mongoose");
+
+const messageSchema = mongoose.Schema({
+    creator: Number,
+    date: Date,
+    content: String,
+    seen: Boolean
+})
+
+const conversationSchema = mongoose.Schema({
+  user1: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  user2: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  messageList: [messageSchema],
+  lastActionDate: Date
+});
+
+const Conversation = mongoose.model("conversations", conversationSchema);
+
+module.exports = Conversation;
+# ./conversations.js
+
+# ./rdv.js
+const mongoose = require("mongoose");
+
+const rdvSchema = mongoose.Schema({
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  receiver: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  status: String,
+  longitude: Number,
+  latitude: Number,
+  address: String,
+  date: Date,
+});
+
+const Rdv = mongoose.model("rdvs", rdvSchema);
+
+module.exports = Rdv;
+
+# ./rdv.js
+
+# ./users.js
+const mongoose = require("mongoose");
+
+const tasteSchema = mongoose.Schema({
+  category: String,
+  label: String,
+  value: String,
+  star: Boolean,
+});
+
+const userSchema = mongoose.Schema({
+  username: String,
+  birthdate: Date,
+  gender: String,
+  accountType: String,
+  password: { type: String, select: false },
+  email: String,
+  phoneNumber: String,
+  photoList: [String],
+  likesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  dislikesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  superlikesList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  tastesList: [tasteSchema],
+  orientation: String,
+  relationship: String,
+  ageRange: String,
+  distance: Number,
+  disableAccount: Boolean,
+  premiumAccount: Boolean,
+  latitude: Number,
+  longitude: Number,
+  blockList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  conversationList: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "conversations" },
+  ],
+  rdvList: [{ type: mongoose.Schema.Types.ObjectId, ref: "rdv" }],
+  valid: { type: Boolean, default: false },
+  tokenNumber: { type: Number, default: 0 },
+  proposedList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  superlikeNumber: {type: Number, default: 0},
+  lastSuperlike: Date
+});
+
+const User = mongoose.model("users", userSchema);
+
+module.exports = User;
+
+# ./users.js
+
+
+Liste des fichiers trouvés et concaténés :
+./connection.js
+./conversations.js
+./rdv.js
+./users.js
