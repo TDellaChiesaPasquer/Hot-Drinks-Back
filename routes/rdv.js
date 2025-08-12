@@ -70,7 +70,7 @@ router.put("/ask", authenticateToken, async (req, res) => {
   }
 });
 
-router.put("/reponse", authenticateToken, async (req, res) => {
+router.put("/response", authenticateToken, async (req, res) => {
   try {
     const rdv = await Rdv.findById(req.body.rdvId);
     if (!rdv) {
