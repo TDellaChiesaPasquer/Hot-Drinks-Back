@@ -5,6 +5,7 @@ require("../models/connection");
 const Rdv = require("../models/rdv");
 const User = require("../models/users");
 const Conversation = require("../models/conversations");
+const { body, validationResult, param } = require("express-validator");
 
 const { authenticateToken } = require("../modules/jwt");
 
@@ -115,7 +116,7 @@ router.put("/cancel", authenticateToken, async (req, res) => {
   }
 });
 
-router.get("/reload", authenticateToken, async (req, res) => {
+router.get("/reload/:rdvId", authenticateToken, async (req, res) => {
   try {
     const rdv = await Rdv.findById(req.params.rdvId);
     if (!rdv) {
