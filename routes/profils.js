@@ -119,6 +119,7 @@ const newMatch = async (req) => {
 
 router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
 	try {
+    console.log('test')
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });

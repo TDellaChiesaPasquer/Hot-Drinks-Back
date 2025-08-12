@@ -8,8 +8,36 @@ const Conversation = require("../models/conversations");
 const { body, validationResult, param } = require("express-validator");
 
 const { authenticateToken } = require("../modules/jwt");
+const Pusher = require("pusher");
 
-router.put("/ask", authenticateToken, async (req, res) => {
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APPID,
+  key: process.env.PUSHER_KEY,
+  secret: process.env.PUSHER_SECRET,
+  cluster: process.env.PUSHER_CLUSTER,
+  useTLS: true,
+});
+
+const latitudeCheck = (value) => {
+	const latitude = Number(value);
+	return latitude >= -90 && latitude <= 90;
+};
+
+const longitudeCheck = (value) => {
+	const longitude = Number(value);
+	return longitude >= -180 && longitude <= 180;
+};
+
+const numberSanitize = (value) => {
+	return Number(value);
+};
+
+router.put("/ask",
+  body('conversationId').isString().isLength({ max: 60 }),
+  body("latitude").custom(latitudeCheck).customSanitizer(numberSanitize),
+  body("longitude").custom(longitudeCheck).customSanitizer(numberSanitize),
+	body("date").isISO8601(),
+  authenticateToken, async (req, res) => {
   try {
     const conv = await Conversation.findById(req.body.conversationId);
     if (!conv) {
@@ -63,6 +91,12 @@ router.put("/ask", authenticateToken, async (req, res) => {
     await User.findByIdAndUpdate(receiver, {
       $push: { rdvList: rdv._id },
     });
+    pusher.trigger(String(rdv.creator), "newRdv", {
+			rdvId: String(rdv._id),
+		});
+    pusher.trigger(String(rdv.receiver), "newRdv", {
+			rdvId: String(rdv._id),
+		});
     res.json({ result: true, rdv: newRdv });
   } catch (error) {
     console.log(error);
@@ -70,8 +104,19 @@ router.put("/ask", authenticateToken, async (req, res) => {
   }
 });
 
-router.put("/reponse", authenticateToken, async (req, res) => {
+const statusDemandeCheck = (value) => {
+  return value === 'confirm' || value === 'refused';
+}
+
+router.put("/reponse",
+  body('rdvId').isString().isLength({ max: 60 }),
+  body('status').isString().custom(statusDemandeCheck),
+  authenticateToken, async (req, res) => {
   try {
+    const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ result: false, error: errors.array() });
+		}
     const rdv = await Rdv.findById(req.body.rdvId);
     if (!rdv) {
       res.json({result: false, error: 'Rendez-vous introuvable'});
@@ -86,6 +131,12 @@ router.put("/reponse", authenticateToken, async (req, res) => {
       return;
     }
     await Rdv.findByIdAndUpdate(rdv._id, {status: req.body.status});
+    pusher.trigger(String(rdv.creator), "rdv", {
+			rdvId: String(rdv._id),
+		});
+    pusher.trigger(String(rdv.receiver), "rdv", {
+			rdvId: String(rdv._id),
+		});
     res.json({result: true});
   } catch (error) {
     console.log(error);
@@ -93,8 +144,14 @@ router.put("/reponse", authenticateToken, async (req, res) => {
   }
 });
 
-router.put("/cancel", authenticateToken, async (req, res) => {
+router.put("/cancel", 
+  body('rdvId').isString().isLength({ max: 60 }),
+  authenticateToken, async (req, res) => {
   try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ result: false, error: errors.array() });
+		}
     const rdv = await Rdv.findById(req.body.rdvId);
     if (!rdv) {
       res.json({result: false, error: 'Rendez-vous introuvable'});
@@ -109,6 +166,12 @@ router.put("/cancel", authenticateToken, async (req, res) => {
       return;
     }
     await Rdv.findByIdAndUpdate(rdv._id, {status: 'cancel'});
+    pusher.trigger(String(rdv.creator), "rdv", {
+			rdvId: String(rdv._id),
+		});
+    pusher.trigger(String(rdv.receiver), "rdv", {
+			rdvId: String(rdv._id),
+		});
     res.json({result: true});
   } catch (error) {
     console.log(error);
@@ -116,8 +179,14 @@ router.put("/cancel", authenticateToken, async (req, res) => {
   }
 });
 
-router.get("/reload/:rdvId", authenticateToken, async (req, res) => {
+router.get("/reload/:rdvId", authenticateToken, 
+  param("rdvId").isString().isLength({ max: 60 }),
+  async (req, res) => {
   try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ result: false, error: errors.array() });
+		}
     const rdv = await Rdv.findById(req.params.rdvId);
     if (!rdv) {
       res.json({result: false, error: 'Rendez-vous introuvable'});
