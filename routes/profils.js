@@ -148,15 +148,6 @@ router.get("/profilTMP", authenticateToken, async (req, res) => {
 	}
 });
 
-// Route qui donne les infos d'un seule personne
-router.get("/oneProfil", authenticateToken, async (req, res) => {
-  // renvoie les infos d'un seul profil sur la base de _id de la conversation -> veirfique la conversation existe
-  // on vérifie que l'user token est membre de la conversation
-  // récupère l'id de l'autre user soit dans user 1 ou dans user 2 c'est selon qui est l'user avec le token
-  // 
-
-});
-
 
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 const newMatch = async (req) => {
