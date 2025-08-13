@@ -71,7 +71,7 @@ router.get("/infos", authenticateToken, async (req, res) => {
     const user = await User.findById(req.userId)
       .populate({
         path: "conversationList",
-        populate: { path: "user1 user2", select: "username photoList" },
+        populate: { path: "user1 user2", select: "username birthdate gender orientation relationship photoList tastesList" },
       })
       .populate({
         path: "rdvList",
