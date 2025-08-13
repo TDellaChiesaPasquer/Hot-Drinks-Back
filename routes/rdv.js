@@ -125,7 +125,7 @@ const statusDemandeCheck = (value) => {
 };
 
 router.put(
-  "/reponse",
+  "/response",
   body("rdvId").isString().isLength({ max: 60 }),
   body("status").isString().custom(statusDemandeCheck),
   authenticateToken,
@@ -191,7 +191,7 @@ router.put(
         });
         return;
       }
-      if (rdv.status !== "confirmé") {
+      if (rdv.status !== "confirm") {
         res.json({
           result: false,
           error: "Le rendez-vous ne peut être annulé",
