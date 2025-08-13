@@ -51,7 +51,7 @@ router.get("/:conversationId", authenticateToken, param("conversationId").isStri
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ result: false, error: errors.array() });
 		}
-		const conversation = await Conversation.findById(req.params.conversationId).populate({ path: "user1 user2", select: "username photoList" });
+		const conversation = await Conversation.findById(req.params.conversationId).populate({ path: "user1 user2", select: "username birthdate gender orientation relationship photoList tastesList" });
 		if (!conversation || (String(conversation.user1._id) !== String(req.userId) && String(conversation.user2._id) !== String(req.userId))) {
 			return res.json({ result: false, error: "Conversation non trouvée" });
 		}
