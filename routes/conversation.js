@@ -4,6 +4,7 @@ var router = express.Router();
 require("../models/connection");
 const User = require("../models/users");
 const Conversation = require("../models/conversations");
+const Rdv = require('../models/rdv');
 const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult, param } = require("express-validator");
 const mongoose = require("mongoose");
@@ -93,8 +94,18 @@ router.delete("/:conversationId", authenticateToken, param("conversationId").isS
 			return res.json({ result: false, error: "Conversation non trouvée" });
 		}
 		const otherUserNumber = String(conversation.user1._id) === String(req.userId) ? 2 : 1;
-		await User.findByIdAndUpdate(conversation[`user${3 - otherUserNumber}`], { $pull: { conversationList: conversation._id }, $push: { blockList: conversation[`user${otherUserNumber}`] } });
-		await User.findByIdAndUpdate(conversation[`user${otherUserNumber}`], { $pull: { conversationList: conversation._id } });
+    console.log('testa')
+    const user = await User.findById(req.userId).populate('rdvList');
+    const rdvList = user.rdvList.filter(x => String(x.creator) === String(conversation[`user${otherUserNumber}`]) || String(x.receiver) === String(conversation[`user${otherUserNumber}`]));
+    console.log(rdvList)
+    for (const rdv of rdvList) {
+      await Rdv.findByIdAndDelete(rdv._id);
+    }
+    const rdvListId = rdvList.map(x => x._id);
+    console.log(rdvListId)
+		await User.findByIdAndUpdate(conversation[`user${3 - otherUserNumber}`], { $pull: { conversationList: conversation._id, rdvList: {$in: rdvListId} }, $push: { blockList: conversation[`user${otherUserNumber}`] } });
+		await User.findByIdAndUpdate(conversation[`user${otherUserNumber}`], { $pull: { conversationList: conversation._id, rdvList: {$in: rdvListId} } });
+    console.log('rfjiorge')
 		await Conversation.findByIdAndDelete(req.params.conversationId);
 		pusher.trigger(String(conversation[`user1`]), "block", {
 			conversationId: String(conversation._id),
@@ -104,6 +115,7 @@ router.delete("/:conversationId", authenticateToken, param("conversationId").isS
 		});
 		res.json({ result: true });
 	} catch (error) {
+    console.log(error)
 		res.json({ result: false, error: "Server error" });
 	}
 });

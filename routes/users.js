@@ -4,6 +4,7 @@ var router = express.Router();
 require("../models/connection");
 const User = require("../models/users");
 const Conversation = require("../models/conversations");
+const Rdv = require('../models/rdv');
 const { generateAccessToken, authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 
@@ -114,7 +115,7 @@ router.put(
 	"/userInfos",
 	authenticateToken,
 	body("birthdate").isISO8601(),
-	body("username").isString().isLength({ max: 40 }).escape(),
+	body("username").isString().isLength({ min: 1, max: 20 }).escape(),
 	body("gender").custom(genderCheck),
 	body("orientation").custom(orientationCheck),
 	body("relationship").custom(relationshipCheck),
@@ -345,7 +346,18 @@ router.delete("/deleteAccount", authenticateToken, async function (req, res) {
 		// 3) On supprime les conversations impiquant le compte user à supprimer
 		await Conversation.deleteMany({ user1: req.userId });
 		await Conversation.deleteMany({ user2: req.userId });
-
+    const rdv1 = await Rdv.find({creator: req.userId});
+    const rdv2 = await Rdv.find({receiver: req.userId});
+    for (const rdv of rdv1) {
+			await User.findByIdAndUpdate(rdv.receiver, {
+				$pull: { rdvList: rdv._id },
+			});
+		}
+		for (const rdv of rdv2) {
+			await User.findByIdAndUpdate(rdv.creator, {
+				$pull: { rdvList: rdv._id },
+			});
+		}
 		// 4) On supprime l'utilisateur
 		await User.deleteOne({ _id: userId });
 
