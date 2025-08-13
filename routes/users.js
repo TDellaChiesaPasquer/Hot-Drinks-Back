@@ -70,7 +70,7 @@ router.get("/infos", authenticateToken, async (req, res) => {
       })
       .populate({
         path: "rdvList",
-        populate: { path: "creator receiver", select: "username photoList" },
+        populate: { path: "creator receiver", select: "username birthdate gender orientation relationship photoList tastesList" },
       });
     if (
       !user.valid &&
