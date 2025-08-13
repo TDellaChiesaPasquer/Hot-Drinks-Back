@@ -208,7 +208,7 @@ router.put("/password", authenticateToken, body("password").isString().isLength(
 			return res.status(400).json({ result: false, error: "New password must be different from current password" });
 		}
 
-		// A modifier => Utiliser un update en base de données
+		// TODO A modifier éventuellement => Utiliser un update en base de données au lieu d'un save
 		// Hash et sauvegarde
 		user.password = await bcrypt.hash(newPassword, salt);
 		await user.save();
