@@ -63,10 +63,15 @@ router.post("/signup", body("email").isEmail().escape(), body("password").isStri
 
 router.get("/infos", authenticateToken, async (req, res) => {
 	try {
-		const user = await User.findById(req.userId).populate({
-			path: "conversationList",
-			populate: { path: "user1 user2", select: "username photoList" },
-		});
+		const user = await User.findById(req.userId)
+			.populate({
+				path: "conversationList",
+				populate: { path: "user1 user2", select: "username photoList" },
+			})
+			.populate({
+				path: "rdvList",
+				populate: { path: "creator receiver", select: "username photoList" },
+			});
 		if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
 			await User.findByIdAndUpdate(req.userId, { valid: true });
 		}
@@ -139,6 +144,22 @@ router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
 	const paths = [];
 	try {
 		const user = await User.findById(req.userId);
+
+		if (user.photoList.length !== 0) {
+			const resultA = await cloudinary.api.delete_resources(
+				user.photoList.map((url) => {
+					const urlSplit = url.split("/");
+					const filteredUrl = urlSplit[urlSplit.length - 1].slice(0, -4);
+					console.log(filteredUrl);
+					return filteredUrl;
+				}),
+				function (result) {
+					console.log(result);
+				}
+			);
+			console.log(resultA);
+		}
+		await User.findByIdAndUpdate(req.userId, { photoList: [] });
 		length = Math.min(length, 9 - user.photoList.length);
 		for (let i = 0; i < length; i++) {
 			paths.push(`./tmp/photo${uniqid()}.jpg`);
@@ -205,15 +226,19 @@ router.put("/password", authenticateToken, body("password").isString().isLength(
 		// Empêche de réutiliser le même mot de passe
 		const isSameAsOld = await bcrypt.compare(newPassword, user.password || "");
 		if (isSameAsOld) {
-			return res.status(400).json({ result: false, error: "New password must be different from current password" });
+			return res.status(400).json({
+				result: false,
+				error: "New password must be different from current password",
+			});
 		}
 
-		// TODO A modifier éventuellement => Utiliser un update en base de données au lieu d'un save
-		// Hash et sauvegarde
-		user.password = await bcrypt.hash(newPassword, salt);
-		await user.save();
+    const passwordBcrypt = await bcrypt.hash(newPassword, salt);
+		await User.findByIdAndUpdate(user._id, { password: passwordBcrypt });
 
-		return res.json({ result: true, message: "User password successfully modified" });
+		return res.json({
+			result: true,
+			message: "User password successfully modified",
+		});
 	} catch (error) {
 		console.log("/password :", error);
 		return res.status(500).json({ result: false, error: "Server error" });
@@ -234,7 +259,10 @@ router.put("/email", authenticateToken, body("email").isEmail().normalizeEmail()
 		const newEmail = String(req.body.email).toLowerCase();
 
 		// Vérifie l'unicité de l'email (hors utilisateur courant)
-		const emailInUse = await User.exists({ email: newEmail, _id: { $ne: userId } });
+		const emailInUse = await User.exists({
+			email: newEmail,
+			_id: { $ne: userId },
+		});
 		// Le code de statut de réponse 409 Conflict indique que la requête entre en conflit avec l'état actuel du serveur.
 		if (emailInUse) {
 			return res.status(409).json({ result: false, error: "Email already in use" });
@@ -263,13 +291,18 @@ router.put("/desactivateAccount", authenticateToken, async function (req, res) {
 	try {
 		const userId = req.userId;
 
-		const updated = await User.findByIdAndUpdate(userId, { disableAccount: true });
+		const updated = await User.findByIdAndUpdate(userId, {
+			disableAccount: true,
+		});
 
 		if (!updated) {
 			return res.status(404).json({ result: false, error: "User not found" });
 		}
 
-		return res.json({ result: true, message: "The account successfully deactivated" });
+		return res.json({
+			result: true,
+			message: "The account successfully deactivated",
+		});
 	} catch (error) {
 		console.log("/desactivateAccount :", error);
 		return res.status(500).json({ result: false, error: "Server error" });
@@ -294,10 +327,14 @@ router.delete("/deleteAccount", authenticateToken, async function (req, res) {
 		const conv2 = await Conversation.find({ user2: req.userId });
 
 		for (const conv of conv1) {
-			await User.findByIdAndUpdate(conv.user2, { $pull: { conversationList: conv._id } });
+			await User.findByIdAndUpdate(conv.user2, {
+				$pull: { conversationList: conv._id },
+			});
 		}
 		for (const conv of conv2) {
-			await User.findByIdAndUpdate(conv.user1, { $pull: { conversationList: conv._id } });
+			await User.findByIdAndUpdate(conv.user1, {
+				$pull: { conversationList: conv._id },
+			});
 		}
 
 		// 3) On supprime les conversations impiquant le compte user à supprimer
@@ -314,42 +351,6 @@ router.delete("/deleteAccount", authenticateToken, async function (req, res) {
 	} catch (error) {
 		console.log("/deleteAccount :", error);
 		return res.status(500).json({ result: false, error: "Server error" });
-	}
-});
-
-//_________________________________________________________ADD PICTURES_______________________________________________________________
-
-router.post("/addPhoto/:i", authenticateToken, async function (req, res, next) {
-	let length = req.params.i;
-	const paths = [];
-	try {
-		const user = await User.findById(req.userId);
-		length = Math.min(length, 9 - user.photoList.length);
-		for (let i = 0; i < length; i++) {
-			paths.push(`./tmp/photo${uniqid()}.jpg`);
-			const resultMove = await req.files["photoFromFront" + i].mv(paths[i]);
-			if (resultMove) {
-				throw new Error("Failed to move photo");
-			}
-		}
-		const photoURIList = [];
-		for (let i = 0; i < paths.length; i++) {
-			const resultCloudinary = await cloudinary.uploader.upload(paths[i]);
-			const uri = resultCloudinary.secure_url;
-			photoURIList.push(uri);
-			await User.findByIdAndUpdate(req.userId, {
-				$push: { photoList: uri },
-			});
-			fs.unlinkSync(paths[i]);
-		}
-
-		res.json({ result: true, photoURLList: photoURIList });
-	} catch (error) {
-		console.log(error);
-		for (let i = 0; i < paths.length; i++) {
-			fs.unlinkSync(paths[i]);
-		}
-		res.json({ result: false, error: "Server error" });
 	}
 });
 
