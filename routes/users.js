@@ -62,24 +62,29 @@ router.post("/signup", body("email").isEmail().escape(), body("password").isStri
 });
 
 router.get("/infos", authenticateToken, async (req, res) => {
-	try {
-		const user = await User.findById(req.userId)
-			.populate({
-				path: "conversationList",
-				populate: { path: "user1 user2", select: "username photoList" },
-			})
-			.populate({
-				path: "rdvList",
-				populate: { path: "creator receiver", select: "username photoList" },
-			});
-		if (!user.valid && user.birthdate && user.latitude && user.photoList.length !== 0) {
-			await User.findByIdAndUpdate(req.userId, { valid: true });
-		}
-		res.json({ result: true, user });
-	} catch (error) {
-		console.log(error);
-		res.status(500).json({ result: false, error: "Server error" });
-	}
+  try {
+    const user = await User.findById(req.userId)
+      .populate({
+        path: "conversationList",
+        populate: { path: "user1 user2", select: "username birthdate gender orientation relationship photoList tastesList" },
+      })
+      .populate({
+        path: "rdvList",
+        populate: { path: "creator receiver", select: "username photoList" },
+      });
+    if (
+      !user.valid &&
+      user.birthdate &&
+      user.latitude &&
+      user.photoList.length !== 0
+    ) {
+      await User.findByIdAndUpdate(req.userId, { valid: true });
+    }
+    res.json({ result: true, user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ result: false, error: "Server error" });
+  }
 });
 
 const genderCheck = (value) => {

@@ -90,13 +90,13 @@ router.put(
         longitude: req.body.longitude,
         latitude: req.body.latitude,
         address:
-          coordinateRdv.number +
+          coordinateRdv.number || '' +
           ", " +
-          coordinateRdv.road +
+          coordinateRdv.road || '' +
           ", " +
-          coordinateRdv.city +
+          coordinateRdv.city || '' +
           ", " +
-          coordinateRdv.country,
+          coordinateRdv.country || '',
         date,
       });
       const rdv = await newRdv.save();
