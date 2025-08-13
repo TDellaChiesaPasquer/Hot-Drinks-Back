@@ -70,6 +70,12 @@ router.put(
       } else {
         receiver = conv.user1;
       }
+      const user = await User.findById(req.userId).populate('rdvList');
+      const possibleRdv = user.rdvList.find(x => (String(receiver._id) === String(x.creator) || String(receiver._id) === String(x.receiver)) && (new Date(x.date)).valueOf() > (new Date()).valueOf() && (x.status === 'demande' || x.status === 'confirm'));
+      if (possibleRdv) {
+        res.json({result: false, error: 'Vous avez déjà un rendez-vous en cours'});
+        return;
+      }
       const requete = await fetch(
         `https://us1.locationiq.com/v1/reverse?key=${process.env.EXPO_PUBLIC_TOKEN}&lat=${req.body.latitude}&lon=${req.body.longitude}&format=json&`
       );

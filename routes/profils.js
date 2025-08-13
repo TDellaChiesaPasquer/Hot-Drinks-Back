@@ -9,7 +9,7 @@ const { body, validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 const Pusher = require("pusher");
 const dayjs = require("dayjs");
-const enTest = true;
+const enTest = false;
 
 const pusher = new Pusher({
 	appId: process.env.PUSHER_APPID,
