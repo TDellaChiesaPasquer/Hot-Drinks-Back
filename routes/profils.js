@@ -8,7 +8,8 @@ const { authenticateToken } = require("../modules/jwt");
 const { body, validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 const Pusher = require("pusher");
-const dayjs = require('dayjs');
+const dayjs = require("dayjs");
+const enTest = true;
 
 const pusher = new Pusher({
 	appId: process.env.PUSHER_APPID,
@@ -36,55 +37,55 @@ function deg2rad(deg) {
 
 router.get("/profil", authenticateToken, async (req, res) => {
 	try {
-		const user = await User.findById(req.userId).populate('proposedList');
-    if (user.proposedList && user.proposedList.length !== 0) {
-      const result = [];
-      for (const element of user.proposedList) {
-        const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList, superlikesList } = element;
-        if (String(_id) === String(req.userId)) {
-          continue;
-        }
-        const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-        result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList, superlikesList });
-      }
-      res.json({ result: true, profilList: result });
-      return;
-    }
-    const genderList = user.orientation === 'Homme' ? ['Homme'] : user.orientation === 'Femme' ? ['Femme'] : ['Homme', 'Femme', 'Non binaire'];
-    const orientationList = user.gender === 'Homme' ? ['Homme', 'Tout'] : user.gender === 'Femme' ? ['Femme', 'Tout'] : ['Tout'];
-    const ageMin = new Date((new Date()).valueOf() - (Number(user.ageRange.slice(0, 2)) * 365 * 24 * 60 * 60 * 1000));
-    const ageMax = new Date((new Date()).valueOf() - (Number(user.ageRange.slice(3) === '65' ? '120' : user.ageRange.slice(3)) * 365 * 24 * 60 * 60 * 1000));
-    const data = await User.aggregate([
-      {
-        $match: {
-          valid: true,
-          gender: {$in: genderList},
-          orientation: {$in: orientationList},
-          birthdate: {$lte: ageMin, $gte: ageMax},
-        }
-      },
-      {
-        $sample: {
-          size: 2000
-        }
-      }
-    ]);
+		const user = await User.findById(req.userId).populate("proposedList");
+		if (user.proposedList && user.proposedList.length !== 0) {
+			const result = [];
+			for (const element of user.proposedList) {
+				const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList, superlikesList } = element;
+				if (String(_id) === String(req.userId)) {
+					continue;
+				}
+				const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
+				result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList, superlikesList });
+			}
+			res.json({ result: true, profilList: result });
+			return;
+		}
+		const genderList = user.orientation === "Homme" ? ["Homme"] : user.orientation === "Femme" ? ["Femme"] : ["Homme", "Femme", "Non binaire"];
+		const orientationList = user.gender === "Homme" ? ["Homme", "Tout"] : user.gender === "Femme" ? ["Femme", "Tout"] : ["Tout"];
+		const ageMin = new Date(new Date().valueOf() - Number(user.ageRange.slice(0, 2)) * 365 * 24 * 60 * 60 * 1000);
+		const ageMax = new Date(new Date().valueOf() - Number(user.ageRange.slice(3) === "65" ? "120" : user.ageRange.slice(3)) * 365 * 24 * 60 * 60 * 1000);
+		const data = await User.aggregate([
+			{
+				$match: {
+					valid: true,
+					gender: { $in: genderList },
+					orientation: { $in: orientationList },
+					birthdate: { $lte: ageMin, $gte: ageMax },
+				},
+			},
+			{
+				$sample: {
+					size: 2000,
+				},
+			},
+		]);
 		const result = [];
 		for (const element of data) {
-      if (result.length === 10) {
-        break;
-      }
+			if (result.length === 10) {
+				break;
+			}
 			const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList, superlikesList } = element;
-      if (String(_id) === String(req.userId)) {
-        continue;
-      }
-      if (user.likesList.some((x) => String(x) === String(_id)) || user.superlikesList.some((x) => String(x) === String(_id)) || user.blockList.some((x) => String(x) === String(_id))) {
-        continue;
-      }
-      const distance = Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude));
-      if (distance > user.distance) {
-        continue;
-      }
+			if (String(_id) === String(req.userId)) {
+				continue;
+			}
+			if (user.likesList.some((x) => String(x) === String(_id)) || user.superlikesList.some((x) => String(x) === String(_id)) || user.blockList.some((x) => String(x) === String(_id))) {
+				continue;
+			}
+			const distance = Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude));
+			if (distance > user.distance) {
+				continue;
+			}
 			const distanceString = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
 			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance: distanceString, tastesList, superlikesList });
 		}
@@ -96,24 +97,85 @@ router.get("/profil", authenticateToken, async (req, res) => {
 	}
 });
 
+// Route pour tester le swipe (plus de profils, sans aucun filtre)
+router.get("/profilTMP", authenticateToken, async (req, res) => {
+	if (enTest) {
+		try {
+			// Récupérer l'utilisateur actuel pour avoir sa position
+			const user = await User.findById(req.userId);
+
+			if (!user) {
+				return res.status(404).json({ result: false, error: "Utilisateur non trouvé" });
+			}
+
+			// Récupérer tous les profils (avec une limite raisonnable)
+			const allProfiles = await User.find({
+				_id: { $ne: req.userId }, // Exclure seulement l'utilisateur lui-même
+			}).limit(50); // Limiter à 50 profils pour éviter des problèmes de performance
+
+			// Formater les résultats avec la distance
+			const result = allProfiles.map((profile) => {
+				const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList, superlikesList } = profile;
+
+				// Calculer la distance uniquement pour l'affichage
+				const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
+
+				return {
+					_id,
+					username,
+					birthdate,
+					gender,
+					orientation,
+					relationship,
+					photoList,
+					distance,
+					tastesList,
+					superlikesList,
+				};
+			});
+
+			// Envoyer la réponse
+			res.json({
+				result: true,
+				profilList: result,
+				totalCount: result.length,
+				message: "Liste de tous les profils sans filtrage",
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ result: false, error: "Server error" });
+		}
+	}
+});
+
+// Route qui donne les infos d'un seule personne
+router.get("/oneProfil", authenticateToken, async (req, res) => {
+  // renvoie les infos d'un seul profil sur la base de _id de la conversation -> veirfique la conversation existe
+  // on vérifie que l'user token est membre de la conversation
+  // récupère l'id de l'autre user soit dans user 1 ou dans user 2 c'est selon qui est l'user avec le token
+  // 
+
+});
+
+
 //_________________________________________________________SWIPER (LIKE/DISLIKE/SUPERLIKE)_______________________________________________________________
 const newMatch = async (req) => {
-  const newConversation = new Conversation({
-    user1: req.userId,
-    user2: req.body.userId,
-    messageList: [],
-    lastActionDate: new Date(),
-  });
-  const conv = await newConversation.save();
-  await User.findByIdAndUpdate(req.userId, { $push: { conversationList: conv._id } });
-  await User.findByIdAndUpdate(req.body.userId, { $push: { conversationList: conv._id } });
-  pusher.trigger(String(req.userId), "match", {
-    conversationId: String(conv._id),
-  });
-  pusher.trigger(String(req.body.userId), "match", {
-    conversationId: String(conv._id),
-  });
-}
+	const newConversation = new Conversation({
+		user1: req.userId,
+		user2: req.body.userId,
+		messageList: [],
+		lastActionDate: new Date(),
+	});
+	const conv = await newConversation.save();
+	await User.findByIdAndUpdate(req.userId, { $push: { conversationList: conv._id } });
+	await User.findByIdAndUpdate(req.body.userId, { $push: { conversationList: conv._id } });
+	pusher.trigger(String(req.userId), "match", {
+		conversationId: String(conv._id),
+	});
+	pusher.trigger(String(req.body.userId), "match", {
+		conversationId: String(conv._id),
+	});
+};
 
 router.put("/swipe", authenticateToken, body("action").isString(), body("userId").isString().isLength({ max: 60 }).escape(), async (req, res) => {
 	try {
@@ -144,22 +206,22 @@ router.put("/swipe", authenticateToken, body("action").isString(), body("userId"
 			res.json({ result: true, likesList: data, match });
 			console.log("Le profil a été liké !");
 		} else if (req.body.action.toLowerCase() === "superlike") {
-      const superlikeDate = user.lastSuperlike || new Date();
-      const today = dayjs().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0);
-      let superlikeNumber = user.superlikeNumber;
-      if (today.valueOf() - superlikeDate.valueOf() > 0 || !superlikeNumber) {
-        superlikeNumber = 0;
-      }
-      if (superlikeNumber >= 3) {
-        res.json({result: false, error: 'Nombre maximal de superlike atteint'});
-        return;
-      }
-      await User.findByIdAndUpdate(req.userId, {lastSuperlike: new Date(), superlikeNumber: superlikeNumber + 1});
+			const superlikeDate = user.lastSuperlike || new Date();
+			const today = dayjs().set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0);
+			let superlikeNumber = user.superlikeNumber;
+			if (today.valueOf() - superlikeDate.valueOf() > 0 || !superlikeNumber) {
+				superlikeNumber = 0;
+			}
+			if (superlikeNumber >= 3) {
+				res.json({ result: false, error: "Nombre maximal de superlike atteint" });
+				return;
+			}
+			await User.findByIdAndUpdate(req.userId, { lastSuperlike: new Date(), superlikeNumber: superlikeNumber + 1 });
 			const data = await User.findByIdAndUpdate(req.userId, {
 				$push: { superlikesList: req.body.userId },
 				$pull: { proposedList: new mongoose.Types.ObjectId(req.body.userId) },
 			});
-      let match = false;
+			let match = false;
 			if (otherUser.likesList.some((x) => String(x) === String(req.userId)) || otherUser.superlikesList.some((x) => String(x) === String(req.userId))) {
 				match = true;
 				await newMatch(req);
