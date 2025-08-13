@@ -231,7 +231,7 @@ router.get(
       }
       const rdv = await Rdv.findById(req.params.rdvId).populate({
         path: "creator receiver",
-        select: "username photoList",
+        select: "username birthdate gender orientation relationship photoList tastesList",
       });
       if (!rdv) {
         res.json({ result: false, error: "Rendez-vous introuvable" });
