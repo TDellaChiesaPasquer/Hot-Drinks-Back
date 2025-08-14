@@ -466,7 +466,24 @@ router.put(
 	}
 );
 
-router.post("/addAllTastes", authenticateToken, async function (req, res, next) {
+const tastesListCheck = (value) => {
+  if (!Array.isArray(value)) {
+    return false;
+  }
+  for (const element of value) {
+    if (typeof element !== 'string') {
+      return false;
+    }
+    if (element === '') {
+      return false;
+    }
+  }
+  return true;
+}
+
+router.post("/addAllTastes", authenticateToken,
+  body('tastesList').custom(tastesListCheck),
+  async function (req, res, next) {
 	try {
 		const tastesList = req.body.tastesList;
 		const updatedUser = await User.findByIdAndUpdate(req.userId, {
