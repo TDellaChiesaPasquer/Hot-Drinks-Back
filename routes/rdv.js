@@ -96,13 +96,10 @@ router.put(
         longitude: req.body.longitude,
         latitude: req.body.latitude,
         address:
-          coordinateRdv.number || '' +
-          ", " +
-          coordinateRdv.road || '' +
-          ", " +
-          coordinateRdv.city || '' +
-          ", " +
-          coordinateRdv.country || '',
+          (coordinateRdv.number ? coordinateRdv.number + ', ' : '') +
+          (coordinateRdv.road ? coordinateRdv.road + ', ' : '') + 
+          (coordinateRdv.city ? coordinateRdv.city + ', ' : '') +
+          (coordinateRdv.country || ''),
         date,
       });
       const rdv = await newRdv.save();
@@ -118,7 +115,7 @@ router.put(
       pusher.trigger(String(rdv.receiver), "newRdv", {
         rdvId: String(rdv._id),
       });
-      res.json({ result: true, rdv: newRdv });
+      res.json({ result: true});
     } catch (error) {
       console.log(error);
       res.json({ result: false, error: "Server error" });
