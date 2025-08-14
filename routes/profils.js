@@ -9,7 +9,6 @@ const { body, validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 const Pusher = require("pusher");
 const dayjs = require("dayjs");
-const enTest = false;
 
 const pusher = new Pusher({
 	appId: process.env.PUSHER_APPID,
@@ -46,22 +45,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
 					continue;
 				}
 				const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-<<<<<<< HEAD
-				result.push({
-					_id,
-					username,
-					birthdate,
-					gender,
-					orientation,
-					relationship,
-					photoList,
-					distance,
-					tastesList,
-					superlikesList,
-				});
-=======
 				result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList, superlikesList });
->>>>>>> 8aaf4835a836ef340488f195b46a0a35c670f08d
 			}
 			res.json({ result: true, profilList: result });
 			return;
@@ -98,87 +82,17 @@ router.get("/profil", authenticateToken, async (req, res) => {
 				continue;
 			}
 			const distance = Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude));
-<<<<<<< HEAD
-			if (distance > user.distance) {
-				continue;
-			}
-			const distanceString = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({
-				_id,
-				username,
-				birthdate,
-				gender,
-				orientation,
-				relationship,
-				photoList,
-				distance: distanceString,
-				tastesList,
-				superlikesList,
-			});
-=======
 			if (distance > (user.distance === 600 ? 40000 : user.distance)) {
 				continue;
 			}
 			const distanceString = `${distance} km`;
 			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance: distanceString, tastesList, superlikesList });
->>>>>>> 8aaf4835a836ef340488f195b46a0a35c670f08d
 		}
 		await User.findByIdAndUpdate(req.userId, { proposedList: result });
 		res.json({ result: true, profilList: result });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ result: false, error: "Server error" });
-	}
-});
-
-// Route pour tester le swipe (plus de profils, sans aucun filtre)
-router.get("/profilTMP", authenticateToken, async (req, res) => {
-	if (enTest) {
-		try {
-			// Récupérer l'utilisateur actuel pour avoir sa position
-			const user = await User.findById(req.userId);
-
-			if (!user) {
-				return res.status(404).json({ result: false, error: "Utilisateur non trouvé" });
-			}
-
-			// Récupérer tous les profils (avec une limite raisonnable)
-			const allProfiles = await User.find({
-				_id: { $ne: req.userId }, // Exclure seulement l'utilisateur lui-même
-			}).limit(50); // Limiter à 50 profils pour éviter des problèmes de performance
-
-			// Formater les résultats avec la distance
-			const result = allProfiles.map((profile) => {
-				const { _id, username, birthdate, gender, orientation, relationship, photoList, latitude, longitude, tastesList, superlikesList } = profile;
-
-				// Calculer la distance uniquement pour l'affichage
-				const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-
-				return {
-					_id,
-					username,
-					birthdate,
-					gender,
-					orientation,
-					relationship,
-					photoList,
-					distance,
-					tastesList,
-					superlikesList,
-				};
-			});
-
-			// Envoyer la réponse
-			res.json({
-				result: true,
-				profilList: result,
-				totalCount: result.length,
-				message: "Liste de tous les profils sans filtrage",
-			});
-		} catch (error) {
-			console.log(error);
-			res.status(500).json({ result: false, error: "Server error" });
-		}
 	}
 });
 
