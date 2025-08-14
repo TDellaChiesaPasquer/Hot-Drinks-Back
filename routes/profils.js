@@ -46,22 +46,7 @@ router.get("/profil", authenticateToken, async (req, res) => {
 					continue;
 				}
 				const distance = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-<<<<<<< HEAD
-				result.push({
-					_id,
-					username,
-					birthdate,
-					gender,
-					orientation,
-					relationship,
-					photoList,
-					distance,
-					tastesList,
-					superlikesList,
-				});
-=======
 				result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance, tastesList, superlikesList });
->>>>>>> 8aaf4835a836ef340488f195b46a0a35c670f08d
 			}
 			res.json({ result: true, profilList: result });
 			return;
@@ -98,30 +83,11 @@ router.get("/profil", authenticateToken, async (req, res) => {
 				continue;
 			}
 			const distance = Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude));
-<<<<<<< HEAD
-			if (distance > user.distance) {
-				continue;
-			}
-			const distanceString = `${Math.ceil(getDistanceFromLatLonInKm(user.latitude, user.longitude, latitude, longitude))} km`;
-			result.push({
-				_id,
-				username,
-				birthdate,
-				gender,
-				orientation,
-				relationship,
-				photoList,
-				distance: distanceString,
-				tastesList,
-				superlikesList,
-			});
-=======
 			if (distance > (user.distance === 600 ? 40000 : user.distance)) {
 				continue;
 			}
 			const distanceString = `${distance} km`;
 			result.push({ _id, username, birthdate, gender, orientation, relationship, photoList, distance: distanceString, tastesList, superlikesList });
->>>>>>> 8aaf4835a836ef340488f195b46a0a35c670f08d
 		}
 		await User.findByIdAndUpdate(req.userId, { proposedList: result });
 		res.json({ result: true, profilList: result });
