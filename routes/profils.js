@@ -164,17 +164,10 @@ router.get("/profil", authenticateToken, async (req, res) => {
           longitude
         )
       );
-      if (distance > user.distance) {
+      if (distance > (user.distance === 600 ? 40000 : user.distance)) {
         continue;
       }
-      const distanceString = `${Math.ceil(
-        getDistanceFromLatLonInKm(
-          user.latitude,
-          user.longitude,
-          latitude,
-          longitude
-        )
-      )} km`;
+      const distanceString = `${distance} km`;
       result.push({
         _id,
         username,
