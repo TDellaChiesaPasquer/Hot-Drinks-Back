@@ -77,7 +77,7 @@ router.put("/:conversationId", authenticateToken, param("conversationId").isStri
 		pusher.trigger(String(conversation[`user${otherUserNumber}`]), "newMessage", {
 			conversationId: String(conversation._id),
 		});
-		res.json({ result: true, conversation });
+		res.json({ result: true});
 	} catch (error) {
 		res.json({ result: false, error: "Server error" });
 	}
